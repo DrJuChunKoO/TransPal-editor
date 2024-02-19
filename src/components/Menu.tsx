@@ -3,7 +3,7 @@ import {
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  // MenubarSeparator,
+  MenubarSeparator,
   // MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar";
@@ -102,6 +102,9 @@ export default function Menu() {
     downloadElement.download = "transpal.json";
     downloadElement.click();
   }
+  function CloseFile() {
+    if (confirm("確定要關閉檔案嗎？")) setFile({});
+  }
   return (
     <>
       <nav className="border-b border-gray-50 flex justify-between items-center">
@@ -117,6 +120,10 @@ export default function Menu() {
             <MenubarContent>
               <MenubarItem onClick={() => LoadFile()}>開啟舊檔</MenubarItem>
               <MenubarItem onClick={() => SaveFile()}>儲存</MenubarItem>
+              <MenubarSeparator />
+              <MenubarItem onClick={() => CloseFile()}>
+                不儲存關閉檔案
+              </MenubarItem>
             </MenubarContent>
           </MenubarMenu>
           {/* <MenubarMenu>
