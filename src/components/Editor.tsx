@@ -233,14 +233,14 @@ export default function Editor() {
                   }}
                 >
                   <div className="text-gray-500 w-[7em] relative">
-                    <SelectSpeakerInput
-                      speaker={x.speaker}
-                      speakers={speakers}
-                      onChange={(newValue: string) => {
+                    <input
+                      className="w-full bg-transparent outline-0"
+                      value={x.speaker}
+                      onChange={(e) => {
                         let newValues = [...file.content];
                         newValues.forEach((y) => {
                           if (y.id === x.id) {
-                            y.speaker = newValue;
+                            y.speaker = e.target.value;
                           }
                         });
                         setFile({ ...file, content: newValues });
