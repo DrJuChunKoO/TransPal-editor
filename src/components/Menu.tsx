@@ -24,7 +24,8 @@ export default function Menu() {
         const reader = new FileReader();
         reader.onload = (e) => {
           const content = e.target?.result;
-          if (typeof content === "string") {
+          const fileExtension = file.name.split(".").pop();
+          if (typeof content === "string" && fileExtension === "srt") {
             // parse srt to json
             const srt = content.split("\n\n").map((x) => x.split("\n"));
             let result = {
@@ -82,8 +83,9 @@ export default function Menu() {
                 speaker,
               });
             });
-            console.log(result);
             setFile(result);
+          } else if (typeof content === "string" && fileExtension === "json") {
+            setFile(JSON.parse(content));
           }
         };
         reader.readAsText(file);
@@ -129,7 +131,7 @@ export default function Menu() {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".srt"
+        accept=".srt,.json"
         style={{
           display: "none",
         }}
