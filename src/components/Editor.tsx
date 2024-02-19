@@ -2,7 +2,6 @@ import { useLocalStorage } from "usehooks-ts";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
-import { useDetectClickOutside } from "react-detect-click-outside";
 
 import { twMerge } from "tailwind-merge";
 function RenameSpeakerInput({ speaker, onChange }: any) {
