@@ -22,59 +22,6 @@ function RenameSpeakerInput({ speaker, onChange }: any) {
     />
   );
 }
-function SelectSpeakerInput({ speaker, speakers, onChange }: any) {
-  const ref = useDetectClickOutside({ onTriggered: () => setFocused(false) });
-  const [focused, setFocused] = useState(false);
-  const [value, setValue] = useState(speaker);
-  useEffect(() => {
-    setValue(speaker);
-  }, [speaker]);
-  function handleSpeakButtonClick(speaker: string) {
-    setValue(speaker);
-    onChange(speaker);
-    setFocused(false);
-  }
-  const codeChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const element = event.target;
-    const nextSibling = element.nextElementSibling as HTMLInputElement;
-    console.log(nextSibling);
-    nextSibling ? nextSibling.focus() : element.blur();
-  };
-  return (
-    <div className="relative" ref={ref}>
-      <input
-        value={value}
-        onChange={(e) => {
-          setValue(e.target.value);
-          onChange(e.target.value);
-          codeChangeHandler(e);
-        }}
-        onKeyDown={(e) => {
-          // tab
-          if (e.key === "Tab") {
-            setFocused(false);
-          }
-        }}
-        className="w-full bg-transparent outline-0"
-        onFocus={() => setFocused(true)}
-      />
-
-      {focused && (
-        <div className="absolute top-[100%] z-10 bg-white border border-gray-200 shadow-lg rounded-lg w-full p-1">
-          {speakers.map((x: string) => (
-            <button
-              key={x}
-              onClick={() => handleSpeakButtonClick(x)}
-              className="rounded px-2 py-1 hover:bg-gray-50 active:bg-gray-100 w-full text-left flex justify-between items-center"
-            >
-              <div>{x}</div>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function Editor() {
   const [file, setFile] = useLocalStorage<any>("current-file", {});
