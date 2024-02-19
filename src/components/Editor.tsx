@@ -52,8 +52,8 @@ export default function Editor() {
 
   if (!file.content) return <div>開啟檔案</div>;
   return (
-    <div className="flex-1 overflow-auto p-4 lg:grid lg:grid-cols-4 gap-4">
-      <div className="sticky top-0 self-top h-max flex flex-col gap-4">
+    <div className="flex-1 flex flex-col overflow-auto p-4 lg:grid lg:grid-cols-4 gap-4">
+      <div className="lg:sticky lg:top-0 lg:self-top h-max flex flex-col gap-4">
         <div className="text-bold border-b border-gray-50 pb-2">基本資訊</div>
 
         <div className="grid w-full max-w-sm items-center gap-1.5">
@@ -144,7 +144,7 @@ export default function Editor() {
         )}
       </div>
       <div className="col-span-3">
-        <div className="text-bold mb-4">會議紀錄</div>
+        <div className="text-bold border-b border-gray-50 pb-2">會議紀錄</div>
         <div
           onMouseDown={() => {
             if (dragSelectMode === false) {
