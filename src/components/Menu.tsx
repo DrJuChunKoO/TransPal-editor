@@ -103,7 +103,8 @@ export default function Menu() {
     downloadElement.click();
   }
   function CloseFile() {
-    if (confirm("確定要關閉檔案嗎？")) setFile({});
+    if (Object.keys(file).length && confirm("關閉檔案後將遺失目前所有的更改"))
+      setFile({});
   }
   return (
     <>
@@ -121,9 +122,7 @@ export default function Menu() {
               <MenubarItem onClick={() => LoadFile()}>開啟舊檔</MenubarItem>
               <MenubarItem onClick={() => SaveFile()}>儲存</MenubarItem>
               <MenubarSeparator />
-              <MenubarItem onClick={() => CloseFile()}>
-                不儲存關閉檔案
-              </MenubarItem>
+              <MenubarItem onClick={() => CloseFile()}>關閉檔案</MenubarItem>
             </MenubarContent>
           </MenubarMenu>
           {/* <MenubarMenu>
