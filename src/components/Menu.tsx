@@ -11,7 +11,15 @@ import { useRef } from "react";
 import { useLocalStorage } from "usehooks-ts";
 export default function Menu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useLocalStorage("current-file", {});
+  const [file, setFile] = useLocalStorage<{
+    raw?: any;
+    info?: {
+      filename?: string;
+      name?: string;
+      date?: string;
+    };
+    content?: any[];
+  }>("current-file", {});
   function LoadFile() {
     if (typeof window === "undefined") return;
     const fileInput = fileInputRef.current;
@@ -94,6 +102,10 @@ export default function Menu() {
   }
   function SaveFile() {
     if (typeof window === "undefined") return;
+    if (!file?.info?.name || !file?.info?.date) {
+      return alert("請輸入名稱和日期");
+    }
+    const { date, name } = file.info;
     const downloadElement = document.createElement("a");
     const fileBolb = new Blob([JSON.stringify(file)], {
       type: "application/json",
