@@ -111,7 +111,7 @@ export default function Menu() {
       type: "application/json",
     });
     downloadElement.href = URL.createObjectURL(fileBolb);
-    downloadElement.download = "transpal.json";
+    downloadElement.download = `${date} ${name}.json`;
     downloadElement.click();
   }
   function CloseFile() {
