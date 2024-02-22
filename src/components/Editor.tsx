@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { CheckSquare2, Square } from "lucide-react";
 import { twMerge } from "tailwind-merge";
+import { motion, AnimatePresence } from "framer-motion";
 function RenameSpeakerInput({ speaker, onChange }: any) {
   const [value, setValue] = useState(speaker);
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function Editor() {
     false | "mouse" | "keyboard"
   >(false);
   const [selectedItem, setSelectedItem] = useState<any>([]);
-
+  const batchChangeOpened = selectedItem.length > 1;
   const speakers = [
     ...new Set(file.content.map((x: any) => x.speaker as string)),
   ] as string[];
@@ -67,122 +68,190 @@ export default function Editor() {
 
   if (!file.content) return <div>開啟檔案</div>;
   return (
-    <div className="flex-1 flex flex-col overflow-auto p-4 lg:grid lg:grid-cols-4 gap-4">
-      <div className="lg:sticky lg:top-0 lg:self-top h-max flex flex-col gap-4">
-        <div className="text-bold border-b border-gray-50 pb-2">基本資訊</div>
-
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="name">名稱</Label>
-          <Input
-            id="name"
-            value={file.info?.name || ""}
-            onChange={(e) =>
-              setFile({
-                ...file,
-                info: { ...file.info, name: e.target.value },
-              })
-            }
-          />
-        </div>
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="name">
-            代稱
-            <span className="text-xs text-gray-500 ml-1">slug</span>
-          </Label>
-          <Input
-            id="slug"
-            value={file.info?.slug || ""}
-            onChange={(e) => {
-              let val = e.target.value;
-
-              val = val
-                .toLowerCase()
-                .replace(/ /g, "-")
-                .replace(/-+/g, "-")
-                .replace(/[^a-z0-9-]/g, "");
-
-              setFile({
-                ...file,
-                info: { ...file.info, slug: val },
-              });
-            }}
-          />
-          <div className="text-xs text-gray-500">
-            用於網址的代稱，請使用英文、數字和連字號（-）來命名。
-          </div>
-        </div>
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="date">日期</Label>
-          <Input
-            id="date"
-            value={file.info?.date || ""}
-            type="date"
-            onChange={(e) =>
-              setFile({
-                ...file,
-                info: { ...file.info, date: e.target.value },
-              })
-            }
-          />
-        </div>
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="filename">原始檔案名稱</Label>
-          <Input
-            id="filename"
-            placeholder="Email"
-            value={file.info?.filename || ""}
-            disabled
-          />
-        </div>
-        <div className="text-bold border-b border-gray-50 pb-2">
-          重命名發言者
-        </div>
-        {speakers.map((x, i) => (
-          <div className="grid w-full max-w-sm items-center gap-1.5" key={i}>
-            <Label htmlFor={`speaker-${i}`}>{x as string}</Label>
-            <RenameSpeakerInput
-              speaker={x}
-              onChange={(newValue: string) => {
-                let newValues = [...file.content];
-                newValues.forEach((y) => {
-                  if (y.speaker === x) {
-                    y.speaker = newValue;
-                  }
-                });
-                setFile({ ...file, content: newValues });
-              }}
+    <div
+      className="flex-1 flex flex-col overflow-auto p-4 lg:grid lg:grid-cols-4 gap-4"
+      onMouseUp={() => {
+        if (dragSelectMode === "mouse") setDragSelectMode(false);
+      }}
+    >
+      <div className="lg:sticky lg:top-0 lg:self-top lg:h-[calc(100svh-73px)] lg:overflow-y-scroll flex flex-col gap-4">
+        <AnimatePresence>
+          {batchChangeOpened && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              className="overflow-hidden absolute z-10 w-64 m-auto inset-0 h-max rounded-lg shadow-2xl"
+            >
+              <motion.div className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col gap-4 w-full">
+                <div className="font-bold text-slate-700">批次變更</div>
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                  <button
+                    className="text-left hover:bg-slate-100 active:bg-slate-200 rounded px-2 py-1 w-full flex justify-between items-center"
+                    onClick={() => {
+                      let newValues = [...file.content];
+                      // merge selected items
+                      let mergedText = "";
+                      let startTime = newValues.find(
+                        (y) => y.id === selectedItem[0]
+                      ).start;
+                      let endTime = 0;
+                      let speaker = newValues.find(
+                        (y) => y.id === selectedItem[0]
+                      )?.speaker;
+                      newValues.forEach((y) => {
+                        if (selectedItem.includes(y.id)) {
+                          mergedText += y.text;
+                          if (y.end > endTime) {
+                            endTime = y.end;
+                          }
+                        }
+                      });
+                      newValues = newValues.filter(
+                        (y) => !selectedItem.includes(y.id)
+                      );
+                      newValues.push({
+                        id: selectedItem[0],
+                        type: "speech",
+                        text: mergedText,
+                        speaker,
+                        start: startTime,
+                        end: endTime,
+                      });
+                      newValues = newValues.sort((a, b) => a.start - b.start);
+                      setFile({ ...file, content: newValues });
+                      setSelectedItem([]);
+                    }}
+                  >
+                    合併選取的發言
+                  </button>
+                  {speakers.map((x) => (
+                    <button
+                      className="text-left hover:bg-slate-100 active:bg-slate-200 rounded px-2 py-1 w-full flex justify-between items-center"
+                      key={x}
+                      onClick={() => {
+                        let newValues = [...file.content];
+                        newValues.forEach((y) => {
+                          if (selectedItem.includes(y.id)) {
+                            y.speaker = x;
+                          }
+                        });
+                        setFile({ ...file, content: newValues });
+                        setSelectedItem([]);
+                      }}
+                    >
+                      批次變更為「{x}」
+                    </button>
+                  ))}{" "}
+                  <button
+                    className="text-left hover:bg-slate-100 active:bg-slate-200 rounded px-2 py-1 w-full flex justify-between items-center"
+                    onClick={() => {
+                      setSelectedItem([]);
+                    }}
+                  >
+                    取消選取
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <div
+          className={twMerge(
+            "bg-slate-50 border border-slate-200 rounded-lg p-3 flex flex-col gap-4 transition-all",
+            batchChangeOpened && "opacity-25 blur-sm pointer-events-none"
+          )}
+        >
+          <div className="font-bold text-slate-700">基本資訊</div>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="name">名稱</Label>
+            <Input
+              id="name"
+              value={file.info?.name || ""}
+              onChange={(e) =>
+                setFile({
+                  ...file,
+                  info: { ...file.info, name: e.target.value },
+                })
+              }
             />
           </div>
-        ))}
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="name">
+              代稱
+              <span className="text-xs text-gray-500 ml-1">slug</span>
+            </Label>
+            <Input
+              id="slug"
+              value={file.info?.slug || ""}
+              onChange={(e) => {
+                let val = e.target.value;
 
-        {selectedItem.length > 1 && (
-          <>
-            <div className="text-bold border-b border-gray-50 pb-2">
-              批次修改發言者
+                val = val
+                  .toLowerCase()
+                  .replace(/ /g, "-")
+                  .replace(/-+/g, "-")
+                  .replace(/[^a-z0-9-]/g, "");
+
+                setFile({
+                  ...file,
+                  info: { ...file.info, slug: val },
+                });
+              }}
+            />
+            <div className="text-xs text-gray-500">
+              用於網址的代稱，請使用英文、數字和連字號（-）來命名
             </div>
-            <div className="grid w-full max-w-sm items-center gap-1.5">
-              {speakers.map((x) => (
-                <button
-                  className=" text-left hover:bg-gray-50 active:bg-gray-100 rounded px-2 py-1 -mx-2 w-full flex justify-between items-center"
-                  key={x}
-                  onClick={() => {
-                    let newValues = [...file.content];
-                    newValues.forEach((y) => {
-                      if (selectedItem.includes(y.id)) {
-                        y.speaker = x;
-                      }
-                    });
-                    console.log(x);
-                    setFile({ ...file, content: newValues });
-                    setSelectedItem([]);
-                  }}
-                >
-                  批次變更為「{x}」
-                </button>
-              ))}
+          </div>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="date">日期</Label>
+            <Input
+              id="date"
+              value={file.info?.date || ""}
+              type="date"
+              onChange={(e) =>
+                setFile({
+                  ...file,
+                  info: { ...file.info, date: e.target.value },
+                })
+              }
+            />
+          </div>
+          <div className="grid w-full max-w-sm items-center gap-1.5">
+            <Label htmlFor="filename">原始檔案名稱</Label>
+            <Input
+              id="filename"
+              placeholder="Email"
+              value={file.info?.filename || ""}
+              disabled
+            />
+          </div>
+        </div>{" "}
+        <div
+          className={twMerge(
+            "bg-slate-50 border border-slate-200 rounded-lg p-3 flex flex-col gap-4 transition-all",
+            batchChangeOpened && "opacity-25 blur-sm pointer-events-none"
+          )}
+        >
+          <div className="font-bold text-slate-700">重命名發言者</div>
+          {speakers.map((x, i) => (
+            <div className="grid w-full max-w-sm items-center gap-1.5" key={i}>
+              <Label htmlFor={`speaker-${i}`}>{x as string}</Label>
+              <RenameSpeakerInput
+                speaker={x}
+                onChange={(newValue: string) => {
+                  let newValues = [...file.content];
+                  newValues.forEach((y) => {
+                    if (y.speaker === x) {
+                      y.speaker = newValue;
+                    }
+                  });
+                  setFile({ ...file, content: newValues });
+                }}
+              />
             </div>
-          </>
-        )}
+          ))}
+        </div>
       </div>
       <div className="col-span-3">
         <div className="text-bold border-b border-gray-50 pb-2">會議紀錄</div>
@@ -195,9 +264,6 @@ export default function Editor() {
               }
             }
           }}
-          onMouseUp={() => {
-            if (dragSelectMode === "mouse") setDragSelectMode(false);
-          }}
         >
           {file.content.map(
             (x: any) =>
@@ -208,7 +274,7 @@ export default function Editor() {
                     selectedItem.includes(x.id)
                       ? "bg-gray-100"
                       : "hover:bg-gray-50",
-                    dragSelectMode ? "*:pointer-events-none" : ""
+                    dragSelectMode ? "*:pointer-events-none *:select-none" : ""
                   )}
                   key={x.id}
                   onMouseOver={() => {
