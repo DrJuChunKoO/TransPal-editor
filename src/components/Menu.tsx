@@ -23,6 +23,7 @@ export default function Menu() {
       filename?: string;
       name?: string;
       date?: string;
+      slug?: string;
     };
     content?: any[];
   }>("current-file", {});
@@ -119,16 +120,16 @@ export default function Menu() {
   }
   function SaveFile() {
     if (typeof window === "undefined") return;
-    if (!file?.info?.name || !file?.info?.date) {
-      return alert("請輸入名稱和日期");
+    if (!file?.info?.name || !file?.info?.date || !file?.info?.slug) {
+      return alert("請輸入名稱、代稱和日期");
     }
-    const { date, name } = file.info;
+    const { date, slug } = file.info;
     const downloadElement = document.createElement("a");
     const fileBolb = new Blob([JSON.stringify(file)], {
       type: "application/json",
     });
     downloadElement.href = URL.createObjectURL(fileBolb);
-    downloadElement.download = `${date} ${name}.json`;
+    downloadElement.download = `${date} ${slug}.json`;
     downloadElement.click();
   }
   function CloseFile() {
