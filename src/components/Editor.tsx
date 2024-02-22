@@ -2,7 +2,7 @@ import { useLocalStorage } from "usehooks-ts";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
-
+import { CheckSquare2, Square } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 function RenameSpeakerInput({ speaker, onChange }: any) {
   const [value, setValue] = useState(speaker);
@@ -33,14 +33,14 @@ export default function Editor() {
     ...new Set(file.content.map((x: any) => x.speaker as string)),
   ] as string[];
   const nameColors = [
-    "text-blue-700",
-    "text-yellow-700",
-    "text-pink-700",
-    "text-purple-700",
-    "text-indigo-700",
-    "text-gray-700",
-    "text-green-700",
-    "text-red-700",
+    "bg-blue-100 text-blue-600",
+    "bg-yellow-100 text-yellow-600",
+    "bg-pink-100 text-pink-600",
+    "bg-purple-100 text-purple-600",
+    "bg-indigo-100 text-indigo-600",
+    "bg-gray-100 text-gray-600",
+    "bg-green-100 text-green-600",
+    "bg-red-100 text-red-600",
   ];
   const nameColor: {
     [key: string]: string;
@@ -204,7 +204,7 @@ export default function Editor() {
               x.type === "speech" && (
                 <div
                   className={twMerge(
-                    "flex gap-4 my-1 p-1 has-[input:focus]:bg-gray-50",
+                    "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center",
                     selectedItem.includes(x.id)
                       ? "bg-gray-100"
                       : "hover:bg-gray-50",
@@ -222,14 +222,21 @@ export default function Editor() {
                     }
                   }}
                 >
+                  <div className="p-1">
+                    {selectedItem.includes(x.id) ? (
+                      <CheckSquare2 />
+                    ) : (
+                      <Square className="text-gray-100" />
+                    )}
+                  </div>
                   <div
                     className={twMerge(
-                      "text-gray-500 w-[7em] relative font-bold",
+                      "text-gray-500 w-[7em] relative font-bold p-1 rounded",
                       nameColor[x.speaker]
                     )}
                   >
                     <input
-                      className="w-full bg-transparent outline-0"
+                      className="w-full bg-transparent outline-0 text-center"
                       value={x.speaker}
                       onChange={(e) => {
                         let newValues = [...file.content];
@@ -244,7 +251,7 @@ export default function Editor() {
                   </div>
                   <div className="flex-1">
                     <input
-                      className="w-full bg-transparent outline-0"
+                      className="w-full bg-transparent outline-0 p-1"
                       value={x.text}
                       onChange={(e) => {
                         let newValues = [...file.content];
