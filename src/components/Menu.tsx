@@ -162,7 +162,7 @@ export default function Menu() {
                 checked={panguEnabled}
                 onClick={() => setPanguEnabled(!panguEnabled)}
               >
-                使用「盤古之白」修正中文排版
+                自動修正中文排版
               </MenubarCheckboxItem>
               {/* <MenubarItem>編輯常用發言者</MenubarItem>
               <MenubarSeparator /> */}
