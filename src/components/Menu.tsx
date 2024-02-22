@@ -5,12 +5,18 @@ import {
   MenubarMenu,
   MenubarSeparator,
   // MenubarShortcut,
+  MenubarCheckboxItem,
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { useRef } from "react";
 import { useLocalStorage } from "usehooks-ts";
+import { pangu } from "pangu-ts";
 export default function Menu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [panguEnabled, setPanguEnabled] = useLocalStorage(
+    "pangu-enabled",
+    true
+  );
   const [file, setFile] = useLocalStorage<{
     raw?: any;
     info?: {
@@ -66,7 +72,11 @@ export default function Menu() {
               if (x.length < 3) return;
               const textMatch = x[2].match(/(.*): (.*)/);
               const speaker = textMatch ? textMatch[1] : "Unknown";
-              const text = textMatch ? textMatch[2] : x[2];
+              let text = textMatch ? textMatch[2] : x[2];
+              if (panguEnabled) {
+                text = pangu.spacing(text.trim());
+              }
+
               const [start, end] = x[1].split(" --> ").map((x) => toSeconds(x));
 
               if (start > lastEnd + 60) {
@@ -93,7 +103,14 @@ export default function Menu() {
             });
             setFile(result);
           } else if (typeof content === "string" && fileExtension === "json") {
-            setFile(JSON.parse(content));
+            let res = JSON.parse(content);
+            if (panguEnabled) {
+              res.content = res.content.map((x: any) => {
+                x.text = pangu.spacing(x.text.trim());
+                return x;
+              });
+            }
+            setFile(res);
           }
         };
         reader.readAsText(file);
@@ -137,13 +154,19 @@ export default function Menu() {
               <MenubarItem onClick={() => CloseFile()}>關閉檔案</MenubarItem>
             </MenubarContent>
           </MenubarMenu>
-          {/* <MenubarMenu>
+          <MenubarMenu>
             <MenubarTrigger>選項</MenubarTrigger>
             <MenubarContent>
-              <MenubarItem>編輯常用發言者</MenubarItem>
-              <MenubarSeparator />
+              <MenubarCheckboxItem
+                checked={panguEnabled}
+                onClick={() => setPanguEnabled(!panguEnabled)}
+              >
+                使用「盤古之白」修正中文排版
+              </MenubarCheckboxItem>
+              {/* <MenubarItem>編輯常用發言者</MenubarItem>
+              <MenubarSeparator /> */}
             </MenubarContent>
-          </MenubarMenu> */}
+          </MenubarMenu>
         </Menubar>
       </nav>
       <input
