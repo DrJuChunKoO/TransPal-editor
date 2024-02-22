@@ -174,7 +174,9 @@ export default function Editor() {
           onMouseDown={() => {
             if (dragSelectMode === false) {
               setSelectedItem([]);
-              setDragSelectMode("mouse");
+              if (document.querySelectorAll(":focus").length === 0) {
+                setDragSelectMode("mouse");
+              }
             }
           }}
           onMouseUp={() => {
