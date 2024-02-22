@@ -32,6 +32,22 @@ export default function Editor() {
   const speakers = [
     ...new Set(file.content.map((x: any) => x.speaker as string)),
   ] as string[];
+  const nameColors = [
+    "text-blue-700",
+    "text-yellow-700",
+    "text-pink-700",
+    "text-purple-700",
+    "text-indigo-700",
+    "text-gray-700",
+    "text-green-700",
+    "text-red-700",
+  ];
+  const nameColor: {
+    [key: string]: string;
+  } = {};
+  speakers.forEach((x, i) => {
+    nameColor[x] = nameColors[i % nameColors.length];
+  });
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.metaKey || e.ctrlKey) {
@@ -206,7 +222,12 @@ export default function Editor() {
                     }
                   }}
                 >
-                  <div className="text-gray-500 w-[7em] relative">
+                  <div
+                    className={twMerge(
+                      "text-gray-500 w-[7em] relative font-bold",
+                      nameColor[x.speaker]
+                    )}
+                  >
                     <input
                       className="w-full bg-transparent outline-0"
                       value={x.speaker}
