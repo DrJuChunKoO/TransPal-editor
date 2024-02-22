@@ -2,7 +2,7 @@ import { useLocalStorage } from "usehooks-ts";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
-import { CheckSquare2, Square } from "lucide-react";
+import { CheckSquare2, Square, Combine, Speech, X } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { motion, AnimatePresence } from "framer-motion";
 function RenameSpeakerInput({ speaker, onChange }: any) {
@@ -87,7 +87,7 @@ export default function Editor() {
                 <div className="font-bold text-slate-700">批次變更</div>
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                   <button
-                    className="text-left hover:bg-slate-100 active:bg-slate-200 rounded px-2 py-1 w-full flex justify-between items-center"
+                    className="text-left hover:bg-slate-100 active:bg-slate-200 rounded px-2 py-1 w-full flex items-center gap-2"
                     onClick={() => {
                       let newValues = [...file.content];
                       // merge selected items
@@ -123,11 +123,11 @@ export default function Editor() {
                       setSelectedItem([]);
                     }}
                   >
-                    合併選取的發言
+                    <Combine /> 合併選取的發言
                   </button>
                   {speakers.map((x) => (
                     <button
-                      className="text-left hover:bg-slate-100 active:bg-slate-200 rounded px-2 py-1 w-full flex justify-between items-center"
+                      className="text-left hover:bg-slate-100 active:bg-slate-200 rounded px-2 py-1 w-full flex items-center gap-2"
                       key={x}
                       onClick={() => {
                         let newValues = [...file.content];
@@ -140,16 +140,16 @@ export default function Editor() {
                         setSelectedItem([]);
                       }}
                     >
-                      批次變更為「{x}」
+                      <Speech /> 批次變更為「{x}」
                     </button>
                   ))}{" "}
                   <button
-                    className="text-left hover:bg-slate-100 active:bg-slate-200 rounded px-2 py-1 w-full flex justify-between items-center"
+                    className="text-left hover:bg-slate-100 active:bg-slate-200 rounded px-2 py-1 w-full flex items-center gap-2"
                     onClick={() => {
                       setSelectedItem([]);
                     }}
                   >
-                    取消選取
+                    <X /> 取消選取
                   </button>
                 </div>
               </motion.div>
