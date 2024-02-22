@@ -69,6 +69,33 @@ export default function Editor() {
           />
         </div>
         <div className="grid w-full max-w-sm items-center gap-1.5">
+          <Label htmlFor="name">
+            代稱
+            <span className="text-xs text-gray-500 ml-1">slug</span>
+          </Label>
+          <Input
+            id="slug"
+            value={file.info?.slug || ""}
+            onChange={(e) => {
+              let val = e.target.value;
+
+              val = val
+                .toLowerCase()
+                .replace(/ /g, "-")
+                .replace(/-+/g, "-")
+                .replace(/[^a-z0-9-]/g, "");
+
+              setFile({
+                ...file,
+                info: { ...file.info, slug: val },
+              });
+            }}
+          />
+          <div className="text-xs text-gray-500">
+            用於網址的代稱，請使用英文、數字和連字號（-）來命名。
+          </div>
+        </div>
+        <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor="date">日期</Label>
           <Input
             id="date"
@@ -82,7 +109,6 @@ export default function Editor() {
             }
           />
         </div>
-
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor="filename">原始檔案名稱</Label>
           <Input
