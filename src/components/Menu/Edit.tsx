@@ -4,25 +4,18 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
-  Menubar,
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarSeparator,
-  // MenubarShortcut,
-  MenubarCheckboxItem,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { useRef, useState } from "react";
-import { useLocalStorage } from "usehooks-ts";
-import { pangu } from "pangu-ts";
+import { useState } from "react";
 import useCurrentFile from "@/hooks/useCurrentFile";
 export default function EditMenu() {
   const [replaceDialog, setReplaceDialog] = useState(false);
@@ -53,7 +46,8 @@ function ReplaceDialog({
     if (replaceText === "") return;
     let currentContent = structuredClone(file.content)!;
     currentContent.forEach((x) => {
-      x.text = x.text.replace(replaceText, replaceWith);
+      //@ts-ignore
+      x.text = x.text.replaceAll(replaceText, replaceWith);
     });
     setFile({ ...file, content: currentContent });
     setReplaceText("");
