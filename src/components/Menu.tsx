@@ -8,7 +8,7 @@ import {
   MenubarCheckboxItem,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { pangu } from "pangu-ts";
 import useCurrentFile from "@/hooks/useCurrentFile";
