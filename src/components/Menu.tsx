@@ -8,25 +8,18 @@ import {
   MenubarCheckboxItem,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { pangu } from "pangu-ts";
+import useCurrentFile from "@/hooks/useCurrentFile";
+import EditMenu from "./Menu/Edit";
 export default function Menu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [panguEnabled, setPanguEnabled] = useLocalStorage(
     "pangu-enabled",
     true
   );
-  const [file, setFile] = useLocalStorage<{
-    raw?: any;
-    info?: {
-      filename?: string;
-      name?: string;
-      date?: string;
-      slug?: string;
-    };
-    content?: any[];
-  }>("current-file", {});
+  const { file, setFile } = useCurrentFile();
   function LoadFile() {
     if (typeof window === "undefined") return;
     const fileInput = fileInputRef.current;
@@ -155,6 +148,7 @@ export default function Menu() {
               <MenubarItem onClick={() => CloseFile()}>關閉檔案</MenubarItem>
             </MenubarContent>
           </MenubarMenu>
+          <EditMenu />
           <MenubarMenu>
             <MenubarTrigger>選項</MenubarTrigger>
             <MenubarContent>
