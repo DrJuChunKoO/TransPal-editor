@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { CheckSquare2, Square, Combine, Speech, X } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { motion, AnimatePresence } from "framer-motion";
+import Markdown from "react-markdown";
 function RenameSpeakerInput({ speaker, onChange }: any) {
   const [value, setValue] = useState(speaker);
   useEffect(() => {
@@ -20,6 +21,61 @@ function RenameSpeakerInput({ speaker, onChange }: any) {
         onChange(e.target.value);
       }}
     />
+  );
+}
+function DescriptionEditor() {
+  const [file, setFile] = useLocalStorage<any>("current-file", {});
+  const [mode, setMode] = useState<"markdown" | "preview">("markdown");
+  return (
+    <>
+      <div className="flex justify-between items-center mb-2">
+        <div className="text-bold border-b border-gray-50">
+          描述
+          <span className="opacity-50 text-xs ml-2">Markdown</span>
+        </div>
+        <div>
+          <button
+            className={twMerge(
+              "px-2 py-1 rounded-md text-sm",
+              mode === "markdown"
+                ? "bg-slate-100 text-slate-800"
+                : "hover:bg-slate-100 hover:text-slate-800"
+            )}
+            onClick={() => setMode("markdown")}
+          >
+            編輯
+          </button>
+          <button
+            className={twMerge(
+              "px-2 py-1 rounded-md text-sm",
+              mode === "preview"
+                ? "bg-slate-100 text-slate-800"
+                : "hover:bg-slate-100 hover:text-slate-800"
+            )}
+            onClick={() => setMode("preview")}
+          >
+            預覽
+          </button>
+        </div>
+      </div>
+      {mode === "markdown" && (
+        <textarea
+          className="text-sm p-2 w-full ring-1 ring-slate-900/10 shadow-sm rounded-md h-40"
+          value={file.info?.description || ""}
+          onChange={(e) => {
+            setFile({
+              ...file,
+              info: { ...file.info, description: e.target.value },
+            });
+          }}
+        />
+      )}
+      {mode === "preview" && (
+        <div className="prose prose-sm p-2 w-full max-w-full ring-1 ring-slate-900/10 shadow-sm rounded-md">
+          <Markdown>{file.info?.description || ""}</Markdown>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -254,7 +310,8 @@ export default function Editor() {
         </div>
       </div>
       <div className="col-span-3">
-        <div className="text-bold border-b border-gray-50 pb-2">會議紀錄</div>
+        <DescriptionEditor />
+        <div className="text-bold border-b border-gray-50 py-2">會議紀錄</div>
         <div
           onMouseDown={() => {
             if (dragSelectMode === false) {
