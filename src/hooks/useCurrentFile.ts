@@ -8,6 +8,7 @@ export default function useCurrentFile() {
       name?: string;
       date?: string;
       slug?: string;
+      description?: string;
     };
     content?: {
       start: number;
