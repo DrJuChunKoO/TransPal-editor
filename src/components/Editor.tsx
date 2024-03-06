@@ -28,8 +28,8 @@ function DescriptionEditor() {
   const [mode, setMode] = useState<"markdown" | "preview">("markdown");
   return (
     <>
-      <div className="flex justify-between items-center mb-2">
-        <div className="text-bold border-b border-gray-50">
+      <div className="flex items-center mb-2 gap-4">
+        <div className="text-bold border-b border-gray-50 flex-1">
           描述
           <span className="opacity-50 text-xs ml-2">Markdown</span>
         </div>
