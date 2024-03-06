@@ -81,9 +81,6 @@ function DescriptionEditor() {
 
 export default function Editor() {
   const [file, setFile] = useLocalStorage<any>("current-file", {});
-  const [dragSelectMode, setDragSelectMode] = useState<
-    false | "mouse" | "keyboard"
-  >(false);
   const [selectedItem, setSelectedItem] = useState<any>([]);
   const batchChangeOpened = selectedItem.length > 1;
   const speakers = [
@@ -105,31 +102,10 @@ export default function Editor() {
   speakers.forEach((x, i) => {
     nameColor[x] = nameColors[i % nameColors.length];
   });
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.metaKey || e.ctrlKey) {
-        setDragSelectMode("keyboard");
-      }
-    }
-    function handleKeyUp() {
-      setDragSelectMode(false);
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("keyup", handleKeyUp);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("keyup", handleKeyUp);
-    };
-  }, []);
 
   if (!file.content) return <div>開啟檔案</div>;
   return (
-    <div
-      className="flex-1 flex flex-col overflow-auto p-4 lg:grid lg:grid-cols-4 gap-4"
-      onMouseUp={() => {
-        if (dragSelectMode === "mouse") setDragSelectMode(false);
-      }}
-    >
+    <div className="flex-1 flex flex-col overflow-auto p-4 lg:grid lg:grid-cols-4 gap-4">
       <div className="lg:sticky lg:top-0 lg:self-top lg:h-[calc(100svh-73px)] lg:overflow-y-scroll flex flex-col gap-4">
         <AnimatePresence>
           {batchChangeOpened && (
@@ -282,7 +258,7 @@ export default function Editor() {
               disabled
             />
           </div>
-        </div>{" "}
+        </div>
         <div
           className={twMerge(
             "bg-slate-50 border border-slate-200 rounded-lg p-3 flex flex-col gap-4 transition-all",
@@ -312,16 +288,7 @@ export default function Editor() {
       <div className="col-span-3">
         <DescriptionEditor />
         <div className="text-bold border-b border-gray-50 py-2">會議紀錄</div>
-        <div
-          onMouseDown={() => {
-            if (dragSelectMode === false) {
-              setSelectedItem([]);
-              if (document.querySelectorAll(":focus").length === 0) {
-                setDragSelectMode("mouse");
-              }
-            }
-          }}
-        >
+        <div>
           {file.content.map(
             (x: any) =>
               x.type === "speech" && (
@@ -330,28 +297,28 @@ export default function Editor() {
                     "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center",
                     selectedItem.includes(x.id)
                       ? "bg-gray-100"
-                      : "hover:bg-gray-50",
-                    dragSelectMode ? "*:pointer-events-none *:select-none" : ""
+                      : "hover:bg-gray-50"
                   )}
                   key={x.id}
-                  onMouseOver={() => {
-                    if (dragSelectMode === "mouse") {
-                      setSelectedItem([...selectedItem, x.id]);
-                    }
-                  }}
-                  onClick={() => {
-                    if (dragSelectMode === "keyboard") {
-                      setSelectedItem([...selectedItem, x.id]);
-                    }
-                  }}
                 >
-                  <div className="p-1">
+                  <button
+                    className="p-1"
+                    onClick={() => {
+                      if (!selectedItem.includes(x.id)) {
+                        setSelectedItem([...selectedItem, x.id]);
+                      } else {
+                        setSelectedItem(
+                          selectedItem.filter((y: any) => y !== x.id)
+                        );
+                      }
+                    }}
+                  >
                     {selectedItem.includes(x.id) ? (
                       <CheckSquare2 />
                     ) : (
                       <Square className="text-gray-100" />
                     )}
-                  </div>
+                  </button>
                   <div
                     className={twMerge(
                       "text-gray-500 w-[7em] relative font-bold p-1 rounded",
@@ -391,7 +358,6 @@ export default function Editor() {
               )
           )}
         </div>
-        {/* <pre>{JSON.stringify(file, null, 2)}</pre>  */}
       </div>
     </div>
   );
