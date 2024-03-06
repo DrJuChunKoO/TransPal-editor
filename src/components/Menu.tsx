@@ -136,7 +136,13 @@ export default function Menu() {
           <MenubarMenu>
             <MenubarTrigger>TransPal 編輯器</MenubarTrigger>
             <MenubarContent>
-              <MenubarItem>TransPal 編輯器 v0.0.1</MenubarItem>
+              <MenubarItem
+                onClick={() => {
+                  window.open("https://github.com/DrJuChunKoO/TransPal-editor");
+                }}
+              >
+                GitHub
+              </MenubarItem>
             </MenubarContent>
           </MenubarMenu>
           <MenubarMenu>
