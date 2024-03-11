@@ -1,6 +1,32 @@
+import { useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import useCurrentFile from "@/hooks/useCurrentFile";
+import { twMerge } from "tailwind-merge";
 export default function NoFile() {
+  const { file, setFile, loadFile } = useCurrentFile();
+  const [onDrag, setOnDrag] = useState(false);
   return (
-    <div className="flex flex-col items-center md:grid md:grid-cols-2 gap-8 h-full p-4 justify-center place-items-center w-full">
+    <div
+      className="flex flex-col items-center md:grid md:grid-cols-2 gap-8 h-full p-4 justify-center place-items-center w-full relative"
+      onDrag={(e) => {
+        e.preventDefault();
+        setOnDrag(true);
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        setOnDrag(false);
+      }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setOnDrag(true);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setOnDrag(false);
+        const dataTransferFile = e.dataTransfer.files[0];
+        if (dataTransferFile) loadFile(dataTransferFile);
+      }}
+    >
       <div>
         <div className="text-4xl text-slate-600">歡迎使用 TransPal 編輯器</div>
         <div className="text-2xl text-slate-400 mt-1">目前支援下列檔案類型</div>
@@ -20,8 +46,27 @@ export default function NoFile() {
         </div>
       </div>
       <div className="flex items-center justify-center flex-col">
-        <div className="text-4xl text-gray-400">開啟檔案來編輯</div>
+        <div className="text-4xl text-gray-400">直接拖入檔案來開始編輯</div>
       </div>
+      <AnimatePresence>
+        {onDrag && (
+          <motion.div
+            className="absolute top-0 left-0 w-full h-full bg-slate-100 bg-opacity-90 z-50 flex justify-center items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              initial={{ y: 50, filter: "blur(8px)", opacity: 0 }}
+              animate={{ y: 0, filter: "blur(0px)", opacity: 1 }}
+              exit={{ y: 50, filter: "blur(8px)", opacity: 0 }}
+              className="text-4xl text-slate-600"
+            >
+              放開檔案來開始編輯
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

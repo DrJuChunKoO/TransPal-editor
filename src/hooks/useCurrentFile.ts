@@ -1,5 +1,4 @@
 import { useLocalStorage } from "usehooks-ts";
-
 import { pangu } from "pangu-ts";
 export default function useCurrentFile() {
   const [panguEnabled] = useLocalStorage("pangu-enabled", true);
