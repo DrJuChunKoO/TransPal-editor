@@ -122,7 +122,7 @@ export default function Menu() {
       type: "application/json",
     });
     downloadElement.href = URL.createObjectURL(fileBolb);
-    downloadElement.download = `${date} ${slug}.json`;
+    downloadElement.download = `${date}-${slug}.json`;
     downloadElement.click();
   }
   function CloseFile() {
