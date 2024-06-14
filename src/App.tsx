@@ -7,7 +7,6 @@ function App() {
   return (
     <div className="h-[100dvh] w-full flex flex-col">
       <Menu />
-
       {file?.content ? <Editor /> : <NoFile />}
     </div>
   );
