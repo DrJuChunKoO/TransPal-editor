@@ -96,12 +96,12 @@ export default function useCurrentFile() {
       description?: string;
     };
     content?: {
-      start: number;
-      end: number;
+      start?: number;
+      end?: number;
       id: string;
-      type: "speech" | "divider";
-      text: string;
-      speaker: string;
+      type: "speech" | "divider" | "markdown";
+      text?: string;
+      speaker?: string;
     }[];
   }>("current-file", {});
   return { file, setFile, loadFile };
