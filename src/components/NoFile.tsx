@@ -1,9 +1,8 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useCurrentFile from "@/hooks/useCurrentFile";
-import { twMerge } from "tailwind-merge";
 export default function NoFile() {
-  const { file, setFile, loadFile } = useCurrentFile();
+  const { loadFile } = useCurrentFile();
   const [onDrag, setOnDrag] = useState(false);
   return (
     <div
