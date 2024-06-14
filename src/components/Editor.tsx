@@ -6,6 +6,7 @@ import { CheckSquare2, Square, Combine, Speech, X } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import { motion, AnimatePresence } from "framer-motion";
 import Markdown from "react-markdown";
+import MoreButton from "./MoreButton";
 function RenameSpeakerInput({ speaker, onChange }: any) {
   const [value, setValue] = useState(speaker);
   useEffect(() => {
@@ -25,7 +26,6 @@ function RenameSpeakerInput({ speaker, onChange }: any) {
 }
 function DescriptionEditor() {
   const [file, setFile] = useLocalStorage<any>("current-file", {});
-  const [mode, setMode] = useState<"markdown" | "preview">("markdown");
   return (
     <>
       <div className="flex items-center mb-2 gap-4">
@@ -33,58 +33,80 @@ function DescriptionEditor() {
           描述
           <span className="opacity-50 text-xs ml-2">Markdown</span>
         </div>
-        <div>
-          <button
-            className={twMerge(
-              "px-2 py-1 rounded-md text-sm",
-              mode === "markdown"
-                ? "bg-slate-100 text-slate-800"
-                : "hover:bg-slate-100 hover:text-slate-800"
-            )}
-            onClick={() => setMode("markdown")}
-          >
-            編輯
-          </button>
-          <button
-            className={twMerge(
-              "px-2 py-1 rounded-md text-sm",
-              mode === "preview"
-                ? "bg-slate-100 text-slate-800"
-                : "hover:bg-slate-100 hover:text-slate-800"
-            )}
-            onClick={() => setMode("preview")}
-          >
-            預覽
-          </button>
-        </div>
+      </div>
+      <MarkdownContextBlock
+        text={file.info?.description || ""}
+        setText={(text: string) => {
+          setFile({
+            ...file,
+            info: { ...file.info, description: text },
+          });
+        }}
+      />
+    </>
+  );
+}
+function MarkdownContextBlock({
+  text,
+  setText,
+}: {
+  text: string;
+  setText: (text: string) => void;
+}) {
+  const [mode, setMode] = useState<"markdown" | "preview">("markdown");
+  return (
+    <div className="relative">
+      <div className="absolute top-1 right-1">
+        <button
+          className={twMerge(
+            "px-2 py-1 rounded text-sm",
+            mode === "markdown"
+              ? "bg-slate-100 text-slate-800"
+              : "hover:bg-slate-100 hover:text-slate-800"
+          )}
+          onClick={() => setMode("markdown")}
+        >
+          編輯
+        </button>
+        <button
+          className={twMerge(
+            "px-2 py-1 rounded-md text-sm",
+            mode === "preview"
+              ? "bg-slate-100 text-slate-800"
+              : "hover:bg-slate-100 hover:text-slate-800"
+          )}
+          onClick={() => setMode("preview")}
+        >
+          預覽
+        </button>
       </div>
       {mode === "markdown" && (
         <textarea
           className="text-sm p-2 w-full ring-1 ring-slate-900/10 shadow-sm rounded-md h-40"
-          value={file.info?.description || ""}
+          value={text}
           onChange={(e) => {
-            setFile({
-              ...file,
-              info: { ...file.info, description: e.target.value },
-            });
+            setText(e.target.value);
           }}
         />
       )}
       {mode === "preview" && (
-        <div className="prose prose-sm p-2 w-full max-w-full ring-1 ring-slate-900/10 shadow-sm rounded-md">
-          <Markdown>{file.info?.description || ""}</Markdown>
+        <div className="prose prose-sm p-2 w-full max-w-full ring-1 ring-slate-900/10 shadow-sm rounded-md min-h-12 bg-white">
+          <Markdown>{text}</Markdown>
         </div>
       )}
-    </>
+    </div>
   );
 }
-
 export default function Editor() {
   const [file, setFile] = useLocalStorage<any>("current-file", {});
   const [selectedItem, setSelectedItem] = useState<any>([]);
   const batchChangeOpened = selectedItem.length > 1;
   const speakers = [
-    ...new Set(file.content.map((x: any) => x.speaker as string)),
+    ...new Set(
+      file.content
+        .filter((x: any) => x.type == "speech")
+        .map((x: any) => x.speaker as string)
+    ),
   ] as string[];
   const nameColors = [
     "bg-blue-100 text-blue-600",
@@ -289,12 +311,12 @@ export default function Editor() {
         <DescriptionEditor />
         <div className="text-bold border-b border-gray-50 py-2">會議紀錄</div>
         <div>
-          {file.content.map(
-            (x: any) =>
-              x.type === "speech" && (
+          {file.content.map((x: any, index: number) => {
+            if (x.type === "speech")
+              return (
                 <div
                   className={twMerge(
-                    "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center",
+                    "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
                     selectedItem.includes(x.id)
                       ? "bg-gray-100"
                       : "hover:bg-gray-50"
@@ -354,9 +376,110 @@ export default function Editor() {
                       }}
                     />
                   </div>
+                  <MoreButton index={index} />
                 </div>
-              )
-          )}
+              );
+            if (x.type === "divider") {
+              return (
+                <div
+                  className={twMerge(
+                    "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
+                    selectedItem.includes(x.id)
+                      ? "bg-gray-100"
+                      : "hover:bg-gray-50"
+                  )}
+                  key={x.id}
+                >
+                  <button
+                    className="p-1"
+                    onClick={() => {
+                      if (!selectedItem.includes(x.id)) {
+                        setSelectedItem([...selectedItem, x.id]);
+                      } else {
+                        setSelectedItem(
+                          selectedItem.filter((y: any) => y !== x.id)
+                        );
+                      }
+                    }}
+                  >
+                    {selectedItem.includes(x.id) ? (
+                      <CheckSquare2 />
+                    ) : (
+                      <Square className="text-gray-100" />
+                    )}
+                  </button>
+                  <div className="w-[7em]"></div>
+                  <div className="flex-1 flex gap-2 items-center">
+                    <div className="h-1 bg-gray-100 w-full"></div>
+                    <input
+                      className="w-full bg-transparent outline-0 p-1 text-center"
+                      value={x.text}
+                      onChange={(e) => {
+                        let newValues = [...file.content];
+                        newValues.forEach((y) => {
+                          if (y.id === x.id) {
+                            y.text = e.target.value;
+                          }
+                        });
+                        setFile({ ...file, content: newValues });
+                      }}
+                      placeholder="（分隔線）"
+                    />
+                    <div className="h-1 bg-gray-100 w-full"></div>
+                  </div>
+                  <MoreButton index={index} />
+                </div>
+              );
+            }
+            if (x.type === "markdown") {
+              return (
+                <div
+                  className={twMerge(
+                    "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
+                    selectedItem.includes(x.id)
+                      ? "bg-gray-100"
+                      : "hover:bg-gray-50"
+                  )}
+                  key={x.id}
+                >
+                  <button
+                    className="p-1"
+                    onClick={() => {
+                      if (!selectedItem.includes(x.id)) {
+                        setSelectedItem([...selectedItem, x.id]);
+                      } else {
+                        setSelectedItem(
+                          selectedItem.filter((y: any) => y !== x.id)
+                        );
+                      }
+                    }}
+                  >
+                    {selectedItem.includes(x.id) ? (
+                      <CheckSquare2 />
+                    ) : (
+                      <Square className="text-gray-100" />
+                    )}
+                  </button>
+                  <div className="w-[7em]"></div>
+                  <div className="flex-1  ">
+                    <MarkdownContextBlock
+                      text={x.text}
+                      setText={(text: string) => {
+                        let newValues = [...file.content];
+                        newValues.forEach((y) => {
+                          if (y.id === x.id) {
+                            y.text = text;
+                          }
+                        });
+                        setFile({ ...file, content: newValues });
+                      }}
+                    />
+                  </div>
+                  <MoreButton index={index} />
+                </div>
+              );
+            }
+          })}
         </div>
       </div>
     </div>
