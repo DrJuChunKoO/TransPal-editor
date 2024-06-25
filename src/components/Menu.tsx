@@ -39,7 +39,7 @@ export default function Menu() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [file]);
   function HandleLoadFile() {
     if (typeof window === "undefined") return;
     const fileInput = fileInputRef.current;

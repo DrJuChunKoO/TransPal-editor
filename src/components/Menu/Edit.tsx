@@ -52,7 +52,7 @@ export default function EditMenu() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [history]);
   return (
     <>
       <MenubarMenu>
