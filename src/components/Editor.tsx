@@ -100,6 +100,25 @@ function MarkdownContextBlock({
 export default function Editor() {
   const [file, setFile] = useLocalStorage<any>("current-file", {});
   const [selectedItem, setSelectedItem] = useState<any>([]);
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Shift") {
+        setIsShiftPressed(true);
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "Shift") {
+        setIsShiftPressed(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
   const batchChangeOpened = selectedItem.length > 1;
   const speakers = [
     ...new Set(
@@ -135,9 +154,9 @@ export default function Editor() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0 }}
-              className="overflow-hidden absolute z-10 w-64 m-auto inset-0 h-max rounded-lg shadow-2xl"
+              className="overflow-hidden absolute z-10 w-64 m-auto inset-0 h-max"
             >
-              <motion.div className="bg-white border border-slate-200 rounded-lg p-3 flex flex-col gap-4 w-full">
+              <motion.div className="bg-white border border-slate-200  p-3 flex flex-col gap-4 w-full rounded-lg ">
                 <div className="font-bold text-slate-700">批次變更</div>
                 <div className="grid w-full max-w-sm items-center gap-1.5">
                   <button
@@ -206,6 +225,18 @@ export default function Editor() {
                     <X /> 取消選取
                   </button>
                 </div>
+              </motion.div>
+              <motion.div className="text-center text-sm mt-2 opacity-75 flex items-center justify-center">
+                按住
+                <span
+                  className={twMerge(
+                    "font-bold mx-1 px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700",
+                    isShiftPressed && "text-blue-50 bg-blue-500"
+                  )}
+                >
+                  Shift
+                </span>
+                鍵可以選取多個項目
               </motion.div>
             </motion.div>
           )}
@@ -326,13 +357,35 @@ export default function Editor() {
                   <button
                     className="p-1"
                     onClick={() => {
-                      if (!selectedItem.includes(x.id)) {
-                        setSelectedItem([...selectedItem, x.id]);
-                      } else {
-                        setSelectedItem(
-                          selectedItem.filter((y: any) => y !== x.id)
+                      let ids = [x.id];
+                      if (isShiftPressed && selectedItem.length > 0) {
+                        let start = file.content.findIndex(
+                          (y: any) => y.id === selectedItem.at(-1)
                         );
+                        let end = index;
+                        if (end < start) {
+                          let temp = end;
+                          end = start;
+                          start = temp;
+                        }
+
+                        ids = file.content
+                          .filter((y: any, i: number) => i >= start && i <= end)
+                          .map((y: any) => y.id)
+                          .filter((y: any) => y !== selectedItem.at(-1));
                       }
+
+                      let newSelectedItem = [...selectedItem];
+                      ids.map((y) => {
+                        if (!newSelectedItem.includes(y)) {
+                          newSelectedItem = [...newSelectedItem, y];
+                        } else {
+                          newSelectedItem = newSelectedItem.filter(
+                            (z: any) => z !== y
+                          );
+                        }
+                      });
+                      setSelectedItem(newSelectedItem);
                     }}
                   >
                     {selectedItem.includes(x.id) ? (
