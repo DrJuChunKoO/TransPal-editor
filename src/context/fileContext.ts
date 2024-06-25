@@ -55,7 +55,10 @@ export const useHistory = () => {
     throw new Error("useHistory must be used within a FileProvider");
   }
   const setHistory = (newContext: FileState) => {
-    historyDispatch({ type: "setFile", payload: newContext });
+    historyDispatch({
+      type: "setFile",
+      payload: JSON.parse(JSON.stringify(newContext)),
+    });
   };
   return { history, setHistory };
 };
