@@ -31,6 +31,16 @@ export default function EditMenu() {
           } else {
             undo();
           }
+
+          if (
+            document.querySelector("input:focus") ||
+            document.querySelector("textarea:focus") ||
+            document.querySelector("select:focus") ||
+            document.querySelector("button:focus")
+          ) {
+          } else {
+            e.preventDefault();
+          }
         }
         if (e.key === "f") {
           setReplaceDialog(true);
