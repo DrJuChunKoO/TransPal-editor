@@ -49,8 +49,7 @@ export default function Menu() {
     downloadElement.click();
   }
   function CloseFile() {
-    if (Object.keys(file).length && confirm("關閉檔案後將遺失目前所有的更改"))
-      setFile({});
+    if (file && confirm("關閉檔案後將遺失目前所有的更改")) setFile(null);
   }
   return (
     <>

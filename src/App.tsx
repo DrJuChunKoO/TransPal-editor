@@ -1,14 +1,24 @@
+import { useReducer } from "react";
 import Editor from "./components/Editor";
 import Menu from "./components/Menu";
 import NoFile from "./components/NoFile";
-import { useLocalStorage } from "usehooks-ts";
+import {
+  FileContext,
+  FileDispatchContext,
+  fileReducer,
+  initialState,
+} from "@/context/fileContext";
 function App() {
-  const [file] = useLocalStorage<any>("current-file", {});
+  const [file, dispatch] = useReducer(fileReducer, initialState);
   return (
-    <div className="h-[100dvh] w-full flex flex-col">
-      <Menu />
-      {file?.content ? <Editor /> : <NoFile />}
-    </div>
+    <FileContext.Provider value={file}>
+      <FileDispatchContext.Provider value={dispatch}>
+        <div className="h-[100dvh] w-full flex flex-col">
+          <Menu />
+          {file.present ? <Editor /> : <NoFile />}
+        </div>
+      </FileDispatchContext.Provider>
+    </FileContext.Provider>
   );
 }
 

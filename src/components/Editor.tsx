@@ -1,4 +1,3 @@
-import { useLocalStorage } from "usehooks-ts";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
@@ -7,6 +6,7 @@ import { twMerge } from "tailwind-merge";
 import { motion, AnimatePresence } from "framer-motion";
 import Markdown from "react-markdown";
 import MoreButton from "./MoreButton";
+import useCurrentFile from "@/hooks/useCurrentFile";
 function RenameSpeakerInput({ speaker, onChange }: any) {
   const [value, setValue] = useState(speaker);
   useEffect(() => {
@@ -25,7 +25,8 @@ function RenameSpeakerInput({ speaker, onChange }: any) {
   );
 }
 function DescriptionEditor() {
-  const [file, setFile] = useLocalStorage<any>("current-file", {});
+  const { file, setFile } = useCurrentFile();
+  if (!file) return <div>開啟檔案</div>;
   return (
     <>
       <div className="flex items-center mb-2 gap-4">
@@ -98,7 +99,7 @@ function MarkdownContextBlock({
   );
 }
 export default function Editor() {
-  const [file, setFile] = useLocalStorage<any>("current-file", {});
+  const { file, setFile } = useCurrentFile();
   const [selectedItem, setSelectedItem] = useState<any>([]);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
   useEffect(() => {
@@ -120,13 +121,6 @@ export default function Editor() {
     };
   }, []);
   const batchChangeOpened = selectedItem.length > 1;
-  const speakers = [
-    ...new Set(
-      file.content
-        .filter((x: any) => x.type == "speech")
-        .map((x: any) => x.speaker as string)
-    ),
-  ] as string[];
   const nameColors = [
     "bg-blue-100 text-blue-600",
     "bg-yellow-100 text-yellow-600",
@@ -140,11 +134,20 @@ export default function Editor() {
   const nameColor: {
     [key: string]: string;
   } = {};
+
+  if (!file || !file.content) return <div>開啟檔案</div>;
+
+  const speakers = [
+    ...new Set(
+      file
+        .content!.filter((x: any) => x.type == "speech")
+        .map((x: any) => x.speaker as string)
+    ),
+  ] as string[];
   speakers.forEach((x, i) => {
     nameColor[x] = nameColors[i % nameColors.length];
   });
 
-  if (!file.content) return <div>開啟檔案</div>;
   return (
     <div className="flex-1 flex flex-col overflow-auto p-4 lg:grid lg:grid-cols-4 gap-4">
       <div className="lg:sticky lg:top-0 lg:self-top lg:h-[calc(100svh-73px)] lg:overflow-y-scroll flex flex-col gap-4">
@@ -162,6 +165,7 @@ export default function Editor() {
                   <button
                     className="text-left hover:bg-slate-100 active:bg-slate-200 rounded px-2 py-1 w-full flex items-center gap-2"
                     onClick={() => {
+                      //@ts-ignore
                       let newValues = [...file.content];
                       // merge selected items
                       let mergedText = "";
@@ -325,7 +329,7 @@ export default function Editor() {
               <RenameSpeakerInput
                 speaker={x}
                 onChange={(newValue: string) => {
-                  let newValues = [...file.content];
+                  let newValues = [...file.content!];
                   newValues.forEach((y) => {
                     if (y.speaker === x) {
                       y.speaker = newValue;
@@ -342,197 +346,201 @@ export default function Editor() {
         <DescriptionEditor />
         <div className="text-bold border-b border-gray-50 py-2">會議紀錄</div>
         <div>
-          {file.content.map((x: any, index: number) => {
-            if (x.type === "speech")
-              return (
-                <div
-                  className={twMerge(
-                    "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
-                    selectedItem.includes(x.id)
-                      ? "bg-gray-100"
-                      : "hover:bg-gray-50"
-                  )}
-                  key={x.id}
-                >
-                  <button
-                    className="p-1"
-                    onClick={() => {
-                      let ids = [x.id];
-                      if (isShiftPressed && selectedItem.length > 0) {
-                        let start = file.content.findIndex(
-                          (y: any) => y.id === selectedItem.at(-1)
-                        );
-                        let end = index;
-                        if (end < start) {
-                          let temp = end;
-                          end = start;
-                          start = temp;
-                        }
-
-                        ids = file.content
-                          .filter((y: any, i: number) => i >= start && i <= end)
-                          .map((y: any) => y.id)
-                          .filter((y: any) => y !== selectedItem.at(-1));
-                      }
-
-                      let newSelectedItem = [...selectedItem];
-                      ids.map((y) => {
-                        if (!newSelectedItem.includes(y)) {
-                          newSelectedItem = [...newSelectedItem, y];
-                        } else {
-                          newSelectedItem = newSelectedItem.filter(
-                            (z: any) => z !== y
-                          );
-                        }
-                      });
-                      setSelectedItem(newSelectedItem);
-                    }}
-                  >
-                    {selectedItem.includes(x.id) ? (
-                      <CheckSquare2 />
-                    ) : (
-                      <Square className="text-gray-100" />
-                    )}
-                  </button>
+          {file.content &&
+            file.content.map((x: any, index: number) => {
+              if (x.type === "speech")
+                return (
                   <div
                     className={twMerge(
-                      "text-gray-500 w-[7em] relative font-bold p-1 rounded",
-                      nameColor[x.speaker]
+                      "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
+                      selectedItem.includes(x.id)
+                        ? "bg-gray-100"
+                        : "hover:bg-gray-50"
                     )}
+                    key={x.id}
                   >
-                    <input
-                      className="w-full bg-transparent outline-0 text-center"
-                      value={x.speaker}
-                      onChange={(e) => {
-                        let newValues = [...file.content];
-                        newValues.forEach((y) => {
-                          if (y.id === x.id) {
-                            y.speaker = e.target.value;
+                    <button
+                      className="p-1"
+                      onClick={() => {
+                        let ids = [x.id];
+                        if (isShiftPressed && selectedItem.length > 0) {
+                          let start = file.content!.findIndex(
+                            (y: any) => y.id === selectedItem.at(-1)
+                          );
+                          let end = index;
+                          if (end < start) {
+                            let temp = end;
+                            end = start;
+                            start = temp;
+                          }
+
+                          ids = file
+                            .content!.filter(
+                              (y: any, i: number) => i >= start && i <= end
+                            )
+                            .map((y: any) => y.id)
+                            .filter((y: any) => y !== selectedItem.at(-1));
+                        }
+
+                        let newSelectedItem = [...selectedItem];
+                        ids.map((y) => {
+                          if (!newSelectedItem.includes(y)) {
+                            newSelectedItem = [...newSelectedItem, y];
+                          } else {
+                            newSelectedItem = newSelectedItem.filter(
+                              (z: any) => z !== y
+                            );
                           }
                         });
-                        setFile({ ...file, content: newValues });
+                        setSelectedItem(newSelectedItem);
                       }}
-                    />
+                    >
+                      {selectedItem.includes(x.id) ? (
+                        <CheckSquare2 />
+                      ) : (
+                        <Square className="text-gray-100" />
+                      )}
+                    </button>
+                    <div
+                      className={twMerge(
+                        "text-gray-500 w-[7em] relative font-bold p-1 rounded",
+                        nameColor[x.speaker]
+                      )}
+                    >
+                      <input
+                        className="w-full bg-transparent outline-0 text-center"
+                        value={x.speaker}
+                        onChange={(e) => {
+                          let newValues = [...file.content!];
+                          newValues.forEach((y) => {
+                            if (y.id === x.id) {
+                              y.speaker = e.target.value;
+                            }
+                          });
+                          setFile({ ...file, content: newValues });
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        className="w-full bg-transparent outline-0 p-1"
+                        value={x.text}
+                        onChange={(e) => {
+                          //@ts-ignore
+                          let newValues = [...file.content];
+                          newValues.forEach((y) => {
+                            if (y.id === x.id) {
+                              y.text = e.target.value;
+                            }
+                          });
+                          setFile({ ...file, content: newValues });
+                        }}
+                      />
+                    </div>
+                    <MoreButton index={index} />
                   </div>
-                  <div className="flex-1">
-                    <input
-                      className="w-full bg-transparent outline-0 p-1"
-                      value={x.text}
-                      onChange={(e) => {
-                        let newValues = [...file.content];
-                        newValues.forEach((y) => {
-                          if (y.id === x.id) {
-                            y.text = e.target.value;
-                          }
-                        });
-                        setFile({ ...file, content: newValues });
-                      }}
-                    />
-                  </div>
-                  <MoreButton index={index} />
-                </div>
-              );
-            if (x.type === "divider") {
-              return (
-                <div
-                  className={twMerge(
-                    "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
-                    selectedItem.includes(x.id)
-                      ? "bg-gray-100"
-                      : "hover:bg-gray-50"
-                  )}
-                  key={x.id}
-                >
-                  <button
-                    className="p-1"
-                    onClick={() => {
-                      if (!selectedItem.includes(x.id)) {
-                        setSelectedItem([...selectedItem, x.id]);
-                      } else {
-                        setSelectedItem(
-                          selectedItem.filter((y: any) => y !== x.id)
-                        );
-                      }
-                    }}
-                  >
-                    {selectedItem.includes(x.id) ? (
-                      <CheckSquare2 />
-                    ) : (
-                      <Square className="text-gray-100" />
+                );
+              if (x.type === "divider") {
+                return (
+                  <div
+                    className={twMerge(
+                      "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
+                      selectedItem.includes(x.id)
+                        ? "bg-gray-100"
+                        : "hover:bg-gray-50"
                     )}
-                  </button>
-                  <div className="w-[7em]"></div>
-                  <div className="flex-1 flex gap-2 items-center">
-                    <div className="h-1 bg-gray-100 w-full"></div>
-                    <input
-                      className="w-full bg-transparent outline-0 p-1 text-center"
-                      value={x.text}
-                      onChange={(e) => {
-                        let newValues = [...file.content];
-                        newValues.forEach((y) => {
-                          if (y.id === x.id) {
-                            y.text = e.target.value;
-                          }
-                        });
-                        setFile({ ...file, content: newValues });
-                      }}
-                      placeholder="（分隔線）"
-                    />
-                    <div className="h-1 bg-gray-100 w-full"></div>
-                  </div>
-                  <MoreButton index={index} />
-                </div>
-              );
-            }
-            if (x.type === "markdown") {
-              return (
-                <div
-                  className={twMerge(
-                    "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
-                    selectedItem.includes(x.id)
-                      ? "bg-gray-100"
-                      : "hover:bg-gray-50"
-                  )}
-                  key={x.id}
-                >
-                  <button
-                    className="p-1"
-                    onClick={() => {
-                      if (!selectedItem.includes(x.id)) {
-                        setSelectedItem([...selectedItem, x.id]);
-                      } else {
-                        setSelectedItem(
-                          selectedItem.filter((y: any) => y !== x.id)
-                        );
-                      }
-                    }}
+                    key={x.id}
                   >
-                    {selectedItem.includes(x.id) ? (
-                      <CheckSquare2 />
-                    ) : (
-                      <Square className="text-gray-100" />
-                    )}
-                  </button>
-                  <div className="w-[7em]"></div>
-                  <div className="flex-1  ">
-                    <MarkdownContextBlock
-                      text={x.text}
-                      setText={(text: string) => {
-                        let newValues = [...file.content];
-                        newValues.forEach((y) => {
-                          if (y.id === x.id) {
-                            y.text = text;
-                          }
-                        });
-                        setFile({ ...file, content: newValues });
+                    <button
+                      className="p-1"
+                      onClick={() => {
+                        if (!selectedItem.includes(x.id)) {
+                          setSelectedItem([...selectedItem, x.id]);
+                        } else {
+                          setSelectedItem(
+                            selectedItem.filter((y: any) => y !== x.id)
+                          );
+                        }
                       }}
-                    />
+                    >
+                      {selectedItem.includes(x.id) ? (
+                        <CheckSquare2 />
+                      ) : (
+                        <Square className="text-gray-100" />
+                      )}
+                    </button>
+                    <div className="w-[7em]"></div>
+                    <div className="flex-1 flex gap-2 items-center">
+                      <div className="h-1 bg-gray-100 w-full"></div>
+                      <input
+                        className="w-full bg-transparent outline-0 p-1 text-center"
+                        value={x.text}
+                        onChange={(e) => {
+                          let newValues = [...file.content];
+                          newValues.forEach((y) => {
+                            if (y.id === x.id) {
+                              y.text = e.target.value;
+                            }
+                          });
+                          setFile({ ...file, content: newValues });
+                        }}
+                        placeholder="（分隔線）"
+                      />
+                      <div className="h-1 bg-gray-100 w-full"></div>
+                    </div>
+                    <MoreButton index={index} />
                   </div>
-                  <MoreButton index={index} />
-                </div>
-              );
-            }
-          })}
+                );
+              }
+              if (x.type === "markdown") {
+                return (
+                  <div
+                    className={twMerge(
+                      "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
+                      selectedItem.includes(x.id)
+                        ? "bg-gray-100"
+                        : "hover:bg-gray-50"
+                    )}
+                    key={x.id}
+                  >
+                    <button
+                      className="p-1"
+                      onClick={() => {
+                        if (!selectedItem.includes(x.id)) {
+                          setSelectedItem([...selectedItem, x.id]);
+                        } else {
+                          setSelectedItem(
+                            selectedItem.filter((y: any) => y !== x.id)
+                          );
+                        }
+                      }}
+                    >
+                      {selectedItem.includes(x.id) ? (
+                        <CheckSquare2 />
+                      ) : (
+                        <Square className="text-gray-100" />
+                      )}
+                    </button>
+                    <div className="w-[7em]"></div>
+                    <div className="flex-1  ">
+                      <MarkdownContextBlock
+                        text={x.text}
+                        setText={(text: string) => {
+                          let newValues = [...file.content];
+                          newValues.forEach((y) => {
+                            if (y.id === x.id) {
+                              y.text = text;
+                            }
+                          });
+                          setFile({ ...file, content: newValues });
+                        }}
+                      />
+                    </div>
+                    <MoreButton index={index} />
+                  </div>
+                );
+              }
+            })}
         </div>
       </div>
     </div>
