@@ -14,16 +14,45 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarTrigger,
+  MenubarShortcut,
 } from "@/components/ui/menubar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useCurrentFile from "@/hooks/useCurrentFile";
 export default function EditMenu() {
   const [replaceDialog, setReplaceDialog] = useState(false);
+  const { undo, redo, history } = useCurrentFile();
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "z" && e.metaKey && e.shiftKey) {
+        redo();
+      } else if (e.key === "z" && e.metaKey) {
+        undo();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
   return (
     <>
       <MenubarMenu>
         <MenubarTrigger>編輯</MenubarTrigger>
         <MenubarContent>
+          <MenubarItem
+            onClick={() => undo()}
+            disabled={history.past.length === 0}
+          >
+            復原
+            <MenubarShortcut> ⌘Z</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem
+            onClick={() => redo()}
+            disabled={history.future.length === 0}
+          >
+            取消復原
+            <MenubarShortcut>⇧⌘Z</MenubarShortcut>
+          </MenubarItem>
           <MenubarItem onClick={() => setReplaceDialog(true)}>取代</MenubarItem>
         </MenubarContent>
       </MenubarMenu>
@@ -44,7 +73,7 @@ function ReplaceDialog({
   const { file, setFile } = useCurrentFile();
   function onReplaceText() {
     if (replaceText === "") return;
-    let currentContent = structuredClone(file.content)!;
+    let currentContent = structuredClone(file!.content)!;
     currentContent.forEach((x) => {
       //@ts-ignore
       x.text = x.text.replaceAll(replaceText, replaceWith);
