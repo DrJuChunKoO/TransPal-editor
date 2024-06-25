@@ -15,6 +15,7 @@ import {
   MenubarMenu,
   MenubarTrigger,
   MenubarShortcut,
+  MenubarSeparator,
 } from "@/components/ui/menubar";
 import { useState, useEffect } from "react";
 import useCurrentFile from "@/hooks/useCurrentFile";
@@ -23,10 +24,18 @@ export default function EditMenu() {
   const { undo, redo, history } = useCurrentFile();
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "z" && e.metaKey && e.shiftKey) {
-        redo();
-      } else if (e.key === "z" && e.metaKey) {
-        undo();
+      if (e.metaKey) {
+        if (e.key === "z") {
+          if (e.shiftKey) {
+            redo();
+          } else {
+            undo();
+          }
+        }
+        if (e.key === "f") {
+          setReplaceDialog(true);
+          e.preventDefault();
+        }
       }
     }
     window.addEventListener("keydown", handleKeyDown);
@@ -53,7 +62,10 @@ export default function EditMenu() {
             取消復原
             <MenubarShortcut>⇧⌘Z</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem onClick={() => setReplaceDialog(true)}>取代</MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem onClick={() => setReplaceDialog(true)}>
+            取代 <MenubarShortcut>⌘F</MenubarShortcut>
+          </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
       <ReplaceDialog open={replaceDialog} setOpen={setReplaceDialog} />

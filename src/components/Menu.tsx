@@ -4,11 +4,11 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
-  // MenubarShortcut,
+  MenubarShortcut,
   MenubarCheckboxItem,
   MenubarTrigger,
 } from "@/components/ui/menubar";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 import useCurrentFile from "@/hooks/useCurrentFile";
@@ -20,6 +20,25 @@ export default function Menu() {
     true
   );
   const { file, setFile, loadFile } = useCurrentFile();
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.metaKey) {
+        if (e.key === "o") {
+          HandleLoadFile();
+          e.preventDefault();
+        }
+        if (e.key === "s") {
+          SaveFile();
+          e.preventDefault();
+        }
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
   function HandleLoadFile() {
     if (typeof window === "undefined") return;
     const fileInput = fileInputRef.current;
@@ -71,9 +90,11 @@ export default function Menu() {
             <MenubarTrigger>檔案</MenubarTrigger>
             <MenubarContent>
               <MenubarItem onClick={() => HandleLoadFile()}>
-                開啟舊檔
+                開啟舊檔 <MenubarShortcut> ⌘O</MenubarShortcut>
               </MenubarItem>
-              <MenubarItem onClick={() => SaveFile()}>儲存</MenubarItem>
+              <MenubarItem onClick={() => SaveFile()}>
+                儲存 <MenubarShortcut> ⌘S</MenubarShortcut>
+              </MenubarItem>
               <MenubarSeparator />
               <MenubarItem onClick={() => CloseFile()}>關閉檔案</MenubarItem>
             </MenubarContent>
