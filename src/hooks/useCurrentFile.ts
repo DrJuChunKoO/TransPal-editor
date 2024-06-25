@@ -121,7 +121,7 @@ export default function useCurrentFile() {
     if (history.present)
       setHistory({
         past: [...history.past, history.present].slice(-HISTORY_COUNT),
-        present: structuredClone(file),
+        present: file,
         future: [],
       });
     window.onbeforeunload = () => {
