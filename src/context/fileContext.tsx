@@ -1,10 +1,11 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useReducer, ReactNode } from "react";
 
 interface FileState {
   past: TranspalFile[];
   present: TranspalFile | null;
   future: TranspalFile[];
 }
+
 interface TranspalFile {
   raw?: any;
   info?: {
@@ -23,18 +24,17 @@ interface TranspalFile {
     speaker?: string;
   }[];
 }
-export const initialState: FileState = {
+
+const initialState: FileState = {
   past: [],
   present: null,
   future: [],
 };
 
-export const FileContext = createContext<FileState | null>(null);
-export const FileDispatchContext = createContext<React.Dispatch<any> | null>(
-  null
-);
+const FileContext = createContext<FileState | null>(null);
+const FileDispatchContext = createContext<React.Dispatch<any> | null>(null);
 
-export const fileReducer = (
+const fileReducer = (
   state: FileState,
   action: {
     type: string;
@@ -48,6 +48,22 @@ export const fileReducer = (
       return state;
   }
 };
+
+interface FileProviderProps {
+  children: ReactNode;
+}
+
+export function FileProvider({ children }: FileProviderProps) {
+  const [file, dispatch] = useReducer(fileReducer, initialState);
+  return (
+    <FileContext.Provider value={file}>
+      <FileDispatchContext.Provider value={dispatch}>
+        {children}
+      </FileDispatchContext.Provider>
+    </FileContext.Provider>
+  );
+}
+
 export const useHistory = () => {
   const history = useContext(FileContext);
   const historyDispatch = useContext(FileDispatchContext);

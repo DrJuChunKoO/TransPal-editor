@@ -1,25 +1,23 @@
-import { useReducer } from "react";
 import Editor from "./components/Editor";
 import Menu from "./components/Menu";
 import NoFile from "./components/NoFile";
-import {
-  FileContext,
-  FileDispatchContext,
-  fileReducer,
-  initialState,
-} from "@/context/fileContext";
+import { FileProvider } from "@/context/fileContext";
+import useCurrentFile from "@/hooks/useCurrentFile";
 function App() {
-  const [file, dispatch] = useReducer(fileReducer, initialState);
+  const { file } = useCurrentFile();
   return (
-    <FileContext.Provider value={file}>
-      <FileDispatchContext.Provider value={dispatch}>
-        <div className="h-[100dvh] w-full flex flex-col">
-          <Menu />
-          {file.present ? <Editor /> : <NoFile />}
-        </div>
-      </FileDispatchContext.Provider>
-    </FileContext.Provider>
+    <div className="h-[100dvh] w-full flex flex-col">
+      <Menu />
+      {file ? <Editor /> : <NoFile />}
+    </div>
+  );
+}
+function Layout() {
+  return (
+    <FileProvider>
+      <App />
+    </FileProvider>
   );
 }
 
-export default App;
+export default Layout;
