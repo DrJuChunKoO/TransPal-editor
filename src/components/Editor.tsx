@@ -376,7 +376,7 @@ export default function Editor() {
 
                           ids = file
                             .content!.filter(
-                              (y: any, i: number) => i >= start && i <= end
+                              (_: any, i: number) => i >= start && i <= end
                             )
                             .map((y: any) => y.id)
                             .filter((y: any) => y !== selectedItem.at(-1));
