@@ -1,7 +1,17 @@
 import { useLocalStorage } from "usehooks-ts";
 import { pangu } from "pangu-ts";
-import { useHistory } from "@/context/fileContext";
-const HISTORY_COUNT = 100;
+import { create } from "zustand";
+
+interface FileStore {
+  file: TranspalFile | null;
+  setFile: (file: TranspalFile | null) => void;
+}
+
+const useFileStore = create<FileStore>((set) => ({
+  file: null,
+  setFile: (file) => set({ file }),
+}));
+
 interface TranspalFile {
   raw?: any;
   info?: {
@@ -21,9 +31,18 @@ interface TranspalFile {
   }[];
 }
 
+function toSeconds(time: string) {
+  const timeArr = time.split(":");
+  const hours = parseInt(timeArr[0]);
+  const minutes = parseInt(timeArr[1]);
+  const seconds = parseInt(timeArr[2].split(",")[0]);
+  const milliseconds = parseInt(timeArr[2].split(",")[1]);
+  return hours * 60 * 60 + minutes * 60 + seconds + milliseconds / 1000;
+}
 export default function useCurrentFile() {
   const [panguEnabled] = useLocalStorage("pangu-enabled", true);
-  const { history, setHistory } = useHistory();
+  const file = useFileStore((state) => state.file);
+  const setCurrentFile = useFileStore((state) => state.setFile);
   function loadFile(file: File) {
     if (file) {
       const reader = new FileReader();
@@ -33,7 +52,7 @@ export default function useCurrentFile() {
         if (typeof content === "string" && fileExtension === "srt") {
           // parse srt to json
           const srt = content.split("\n\n").map((x) => x.split("\n"));
-          let result = {
+          const result = {
             version: "1.0",
             info: {
               filename: file.name,
@@ -48,16 +67,6 @@ export default function useCurrentFile() {
           let lastEnd = 0;
 
           // 00:00:00,000
-          function toSeconds(time: string) {
-            const timeArr = time.split(":");
-            const hours = parseInt(timeArr[0]);
-            const minutes = parseInt(timeArr[1]);
-            const seconds = parseInt(timeArr[2].split(",")[0]);
-            const milliseconds = parseInt(timeArr[2].split(",")[1]);
-            return (
-              hours * 60 * 60 + minutes * 60 + seconds + milliseconds / 1000
-            );
-          }
           srt.forEach((x) => {
             const randomId = Math.random().toString(36).substring(7);
             if (x.length < 3) return;
@@ -93,13 +102,9 @@ export default function useCurrentFile() {
             });
           });
 
-          setHistory({
-            past: [],
-            present: result,
-            future: [],
-          });
+          setCurrentFile(result);
         } else if (typeof content === "string" && fileExtension === "json") {
-          let res = JSON.parse(content);
+          const res = JSON.parse(content);
           if (panguEnabled) {
             res.content = res.content.map((x: any) => {
               x.text = pangu.spacing(x.text.trim());
@@ -107,56 +112,20 @@ export default function useCurrentFile() {
             });
           }
 
-          setHistory({
-            past: [],
-            present: res,
-            future: [],
-          });
+          setCurrentFile(res);
         }
       };
       reader.readAsText(file);
     }
   }
+
   const setFile = (file: TranspalFile | null) => {
-    if (history.present)
-      setHistory({
-        past: [...history.past, history.present].slice(-HISTORY_COUNT),
-        present: file,
-        future: [],
-      });
-    window.onbeforeunload = () => {
-      return "Are you sure you want to leave?";
-    };
+    setCurrentFile(file);
   };
-  const undo = () => {
-    if (history.past.length && history.present) {
-      const previous = history.past[history.past.length - 1];
-      const newPast = history.past.slice(0, history.past.length - 1);
-      setHistory({
-        past: newPast,
-        present: previous,
-        future: [history.present, ...history.future].slice(0, HISTORY_COUNT),
-      });
-    }
-  };
-  const redo = () => {
-    if (history.future.length && history.present) {
-      const next = history.future[0];
-      const newFuture = history.future.slice(1);
-      setHistory({
-        past: [...history.past, history.present],
-        present: next,
-        future: newFuture,
-      });
-    }
-  };
+
   return {
-    file: history.present,
+    file,
     setFile,
     loadFile,
-    undo,
-    redo,
-    history,
-    setHistory,
   };
 }
