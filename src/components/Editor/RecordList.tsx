@@ -29,7 +29,7 @@ const RecordList = memo(({ selectedItem, onSelect }: RecordListProps) => {
 
     const speakers = [
       ...new Set(
-        content.filter((x) => x.type === "speech").map((x) => x.speaker),
+        content.filter((x) => x.type === "speech").map((x) => x.speaker || ""),
       ),
     ] as string[];
 
@@ -55,7 +55,10 @@ const RecordList = memo(({ selectedItem, onSelect }: RecordListProps) => {
       {content.map((item, index) => {
         const isSelected = selectedItem.includes(item.id);
         const props = {
-          item,
+          item: {
+            ...item,
+            text: item.text || "",
+          },
           index,
           isSelected,
           onSelect: () => onSelect(item.id, index),
@@ -69,7 +72,11 @@ const RecordList = memo(({ selectedItem, onSelect }: RecordListProps) => {
               <SpeechItem
                 key={item.id}
                 {...props}
-                nameColor={nameColors[item.speaker || ""]}
+                nameColor={
+                  item.speaker
+                    ? nameColors[item.speaker]
+                    : "bg-gray-100 text-gray-600"
+                }
               />
             );
           case "divider":

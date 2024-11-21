@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
 import { AnimatePresence } from "motion/react";
-import useCurrentFile from "@/hooks/useCurrentFile";
 import { useFileContent } from "@/hooks/useFileContent";
 import BasicInfoForm from "./BasicInfoForm";
 import SpeakerRenameSection from "./SpeakerRenameSection";
