@@ -11,7 +11,8 @@ const MarkdownContextBlock = memo(
   ({ text, setText }: MarkdownContextBlockProps) => {
     const [mode, setMode] = useState<"markdown" | "preview">("markdown");
     const [localText, setLocalText] = useState(text);
-    const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [debounceTimeout, setDebounceTimeout] =
+      useState<NodeJS.Timeout | null>(null);
 
     // Sync local state with prop when text changes externally
     useEffect(() => {
@@ -20,17 +21,17 @@ const MarkdownContextBlock = memo(
 
     const handleTextChange = (newText: string) => {
       setLocalText(newText);
-      
+
       // Clear any existing timeout
       if (debounceTimeout) {
         clearTimeout(debounceTimeout);
       }
-      
+
       // Set a new timeout to update the parent state after 300ms of no typing
       const timeout = setTimeout(() => {
         setText(newText);
       }, 300);
-      
+
       setDebounceTimeout(timeout);
     };
 
@@ -76,7 +77,7 @@ const MarkdownContextBlock = memo(
         )}
       </div>
     );
-  }
+  },
 );
 
 MarkdownContextBlock.displayName = "MarkdownContextBlock";
