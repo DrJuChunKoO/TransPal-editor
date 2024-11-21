@@ -1,16 +1,18 @@
-import Editor from "./components/Editor";
+import Editor from "./components/Editor/Editor";
 import Menu from "./components/Menu";
 import NoFile from "./components/NoFile";
-import useCurrentFile from "@/hooks/useCurrentFile";
+import { useFileContent } from "@/hooks/useFileContent";
+
 function App() {
-  const { file } = useCurrentFile();
+  const { content } = useFileContent();
   return (
     <div className="h-[100dvh] w-full flex flex-col">
       <Menu />
-      {file ? <Editor /> : <NoFile />}
+      {content ? <Editor /> : <NoFile />}
     </div>
   );
 }
+
 function Layout() {
   return <App />;
 }

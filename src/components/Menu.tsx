@@ -12,14 +12,21 @@ import { useRef, useEffect } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 import useCurrentFile from "@/hooks/useCurrentFile";
+import { useFileInfo } from "@/hooks/useFileInfo";
+import { useFileContent } from "@/hooks/useFileContent";
+import { useFileRaw } from "@/hooks/useFileRaw";
 import EditMenu from "./Menu/Edit";
+
 export default function Menu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [panguEnabled, setPanguEnabled] = useLocalStorage(
     "pangu-enabled",
     true,
   );
-  const { file, setFile, loadFile } = useCurrentFile();
+  const { loadFile } = useCurrentFile();
+  const { info, setInfo } = useFileInfo();
+  const { content, setContent } = useFileContent();
+  const { raw, setRaw } = useFileRaw();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -38,7 +45,8 @@ export default function Menu() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [file]);
+  }, [info, content, raw]);
+
   function HandleLoadFile() {
     if (typeof window === "undefined") return;
     const fileInput = fileInputRef.current;
@@ -50,26 +58,33 @@ export default function Menu() {
       if (file) loadFile(file);
     };
   }
+
   function SaveFile() {
     if (typeof window === "undefined") return;
-    if (!file?.info) {
+    if (!info) {
       return alert("目前沒有檔案可以儲存");
     }
-    if (!file?.info?.name || !file?.info?.date || !file?.info?.slug) {
+    if (!info?.name || !info?.date || !info?.slug) {
       return alert("請輸入名稱、代稱和日期");
     }
-    const { date, slug } = file.info;
+    const { date, slug } = info;
     const downloadElement = document.createElement("a");
-    const fileBolb = new Blob([JSON.stringify(file)], {
+    const fileBolb = new Blob([JSON.stringify({ info, content, raw })], {
       type: "application/json",
     });
     downloadElement.href = URL.createObjectURL(fileBolb);
     downloadElement.download = `${date}-${slug}.json`;
     downloadElement.click();
   }
+
   function CloseFile() {
-    if (file && confirm("關閉檔案後將遺失目前所有的更改")) setFile(null);
+    if (content && confirm("關閉檔案後將遺失目前所有的更改")) {
+      setInfo(null);
+      setContent([]);
+      setRaw(null);
+    }
   }
+
   return (
     <>
       <nav className="border-b border-gray-50 flex justify-between items-center">
