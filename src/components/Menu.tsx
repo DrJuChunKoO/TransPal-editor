@@ -79,7 +79,7 @@ export default function Menu() {
 
   function CloseFile() {
     if (content && confirm("關閉檔案後將遺失目前所有的更改")) {
-      setInfo(null);
+      setInfo(undefined);
       setContent([]);
       setRaw(null);
     }
