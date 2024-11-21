@@ -31,7 +31,7 @@ export default function MoreButton({ index }: { index: number }) {
   const { file, setFile } = useCurrentFile();
   function insertMarkdownBlock() {
     const randomId = Math.random().toString(36).substring(7);
-    let newFile = { ...file };
+    const newFile = { ...file };
     newFile.content!.splice(index + 1, 0, {
       id: randomId,
       type: "markdown",
@@ -41,7 +41,7 @@ export default function MoreButton({ index }: { index: number }) {
   }
   function insertDivider() {
     const randomId = Math.random().toString(36).substring(7);
-    let newFile = { ...file };
+    const newFile = { ...file };
     newFile.content!.splice(index + 1, 0, {
       id: randomId,
       type: "divider",
@@ -49,7 +49,7 @@ export default function MoreButton({ index }: { index: number }) {
     setFile(newFile);
   }
   function deleteItem() {
-    let newFile = { ...file };
+    const newFile = { ...file };
     newFile.content!.splice(index, 1);
     setFile(newFile);
   }
