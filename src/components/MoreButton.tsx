@@ -1,7 +1,7 @@
 import { MoreHorizontal, Trash, BetweenHorizonalEnd } from "lucide-react";
 import React, { useState, useRef } from "react";
 import { useOnClickOutside } from "usehooks-ts";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { twMerge } from "tailwind-merge";
 import useCurrentFile from "@/hooks/useCurrentFile";
 function MenuButton({
@@ -16,7 +16,7 @@ function MenuButton({
     <button
       className={twMerge(
         "p-1 px-3 rounded-sm text-sm hover:bg-black/5 w-full text-left flex items-center gap-2",
-        variant === "danger" && "text-red-500"
+        variant === "danger" && "text-red-500",
       )}
       {...props}
     >
@@ -60,7 +60,7 @@ export default function MoreButton({ index }: { index: number }) {
           "size-6 flex items-center justify-center transition-colors rounded-sm",
           isOpen
             ? "bg-black/10 opacity-100 shadow-inner"
-            : "opacity-0 group-hover:opacity-100 hover:bg-black/5 active:bg-black/10"
+            : "opacity-0 group-hover:opacity-100 hover:bg-black/5 active:bg-black/10",
         )}
         onClick={() => setIsOpen(!isOpen)}
       >
