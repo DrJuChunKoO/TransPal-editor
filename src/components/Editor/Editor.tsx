@@ -5,10 +5,10 @@ import { useFileContent } from "@/hooks/useFileContent";
 import BasicInfoForm from "./BasicInfoForm";
 import SpeakerRenameSection from "./SpeakerRenameSection";
 import BatchChangePanel from "./BatchChangePanel";
-import RecordList from "./RecordList"; 
-import DescriptionEditor from "./DescriptionEditor"; 
+import RecordList from "./RecordList";
+import DescriptionEditor from "./DescriptionEditor";
 
-const Editor = () => { 
+const Editor = () => {
   const { content, setContent } = useFileContent();
   const [selectedItem, setSelectedItem] = useState<string[]>([]);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
@@ -73,9 +73,7 @@ const Editor = () => {
   };
 
   const mergeSelected = () => {
-    const selectedItems = content.filter((x) =>
-      selectedItem.includes(x.id),
-    );
+    const selectedItems = content.filter((x) => selectedItem.includes(x.id));
     const firstItem = selectedItems[0];
     const mergedText = selectedItems.map((x) => x.text).join("");
     const endTime = selectedItems[selectedItems.length - 1].end;
@@ -110,8 +108,8 @@ const Editor = () => {
         <BasicInfoForm batchChangeOpened={batchChangeOpened} />
         <SpeakerRenameSection batchChangeOpened={batchChangeOpened} />
       </div>
-      <div className="lg:col-span-3 relative overflow-auto h-full">    
-          <DescriptionEditor />
+      <div className="lg:col-span-3 relative overflow-auto h-full">
+        <DescriptionEditor />
         <RecordList selectedItem={selectedItem} onSelect={handleSelect} />
       </div>
     </div>

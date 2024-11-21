@@ -24,7 +24,9 @@ const SpeechItem = memo(
   }: SpeechItemProps) => {
     const [localSpeaker, setLocalSpeaker] = useState(item.speaker);
     const [localText, setLocalText] = useState(item.text);
-    const [speakerTimeout, setSpeakerTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [speakerTimeout, setSpeakerTimeout] = useState<NodeJS.Timeout | null>(
+      null,
+    );
     const [textTimeout, setTextTimeout] = useState<NodeJS.Timeout | null>(null);
 
     // Sync local state with props when they change externally
