@@ -2,14 +2,34 @@ import { useLocalStorage } from "usehooks-ts";
 import { pangu } from "pangu-ts";
 import { create } from "zustand";
 
-interface FileStore {
-  file: TranspalFile | null;
-  setFile: (file: TranspalFile | null) => void;
+interface FileInfoStore {
+  info: TranspalFile['info'];
+  setInfo: (info: TranspalFile['info']) => void;
 }
 
-const useFileStore = create<FileStore>((set) => ({
-  file: null,
-  setFile: (file) => set({ file }),
+interface FileContentStore {
+  content: TranspalFile['content'];
+  setContent: (content: TranspalFile['content']) => void;
+}
+
+interface FileRawStore {
+  raw: TranspalFile['raw'];
+  setRaw: (raw: TranspalFile['raw']) => void;
+}
+
+export const useFileInfoStore = create<FileInfoStore>((set) => ({
+  info: null,
+  setInfo: (info) => set({ info }),
+}));
+
+export const useFileContentStore = create<FileContentStore>((set) => ({
+  content: [],
+  setContent: (content) => set({ content }),
+}));
+
+export const useFileRawStore = create<FileRawStore>((set) => ({
+  raw: null,
+  setRaw: (raw) => set({ raw }),
 }));
 
 interface TranspalFile {
@@ -39,10 +59,16 @@ function toSeconds(time: string) {
   const milliseconds = parseInt(timeArr[2].split(",")[1]);
   return hours * 60 * 60 + minutes * 60 + seconds + milliseconds / 1000;
 }
+
 export default function useCurrentFile() {
   const [panguEnabled] = useLocalStorage("pangu-enabled", true);
-  const file = useFileStore((state) => state.file);
-  const setCurrentFile = useFileStore((state) => state.setFile);
+  const info = useFileInfoStore((state) => state.info);
+  const setInfo = useFileInfoStore((state) => state.setInfo);
+  const content = useFileContentStore((state) => state.content);
+  const setContent = useFileContentStore((state) => state.setContent);
+  const raw = useFileRawStore((state) => state.raw);
+  const setRaw = useFileRawStore((state) => state.setRaw);
+
   function loadFile(file: File) {
     if (file) {
       const reader = new FileReader();
@@ -52,18 +78,15 @@ export default function useCurrentFile() {
         if (typeof content === "string" && fileExtension === "srt") {
           // parse srt to json
           const srt = content.split("\n\n").map((x) => x.split("\n"));
-          const result = {
-            version: "1.0",
-            info: {
-              filename: file.name,
-            },
-            raw: {
-              diarization: null,
-              transcript: null,
-              srt: content,
-            },
-            content: [] as any[],
+          const info = {
+            filename: file.name,
           };
+          const raw = {
+            diarization: null,
+            transcript: null,
+            srt: content,
+          };
+          let parsedContent = [] as any[];
           let lastEnd = 0;
 
           // 00:00:00,000
@@ -80,7 +103,7 @@ export default function useCurrentFile() {
             const [start, end] = x[1].split(" --> ").map((x) => toSeconds(x));
 
             if (start > lastEnd + 60) {
-              result.content.push({
+              parsedContent.push({
                 start: lastEnd,
                 end: start,
                 id: randomId,
@@ -92,7 +115,7 @@ export default function useCurrentFile() {
 
             lastEnd = end;
 
-            result.content.push({
+            parsedContent.push({
               start,
               end,
               id: randomId,
@@ -102,7 +125,9 @@ export default function useCurrentFile() {
             });
           });
 
-          setCurrentFile(result);
+          setInfo(info);
+          setRaw(raw);
+          setContent(parsedContent);
         } else if (typeof content === "string" && fileExtension === "json") {
           const res = JSON.parse(content);
           if (panguEnabled) {
@@ -112,7 +137,9 @@ export default function useCurrentFile() {
             });
           }
 
-          setCurrentFile(res);
+          setInfo(res.info);
+          setRaw(res.raw);
+          setContent(res.content);
         }
       };
       reader.readAsText(file);
@@ -120,11 +147,23 @@ export default function useCurrentFile() {
   }
 
   const setFile = (file: TranspalFile | null) => {
-    setCurrentFile(file);
+    if (file === null) {
+      setInfo(null);
+      setContent([]);
+      setRaw(null);
+      return;
+    }
+    setInfo(file.info);
+    setContent(file.content);
+    setRaw(file.raw);
   };
 
   return {
-    file,
+    file: {
+      info,
+      content,
+      raw,
+    },
     setFile,
     loadFile,
   };
