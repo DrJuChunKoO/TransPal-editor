@@ -1,7 +1,6 @@
 import Editor from "./components/Editor";
 import Menu from "./components/Menu";
 import NoFile from "./components/NoFile";
-import { FileProvider } from "@/context/fileContext";
 import useCurrentFile from "@/hooks/useCurrentFile";
 function App() {
   const { file } = useCurrentFile();
@@ -13,11 +12,7 @@ function App() {
   );
 }
 function Layout() {
-  return (
-    <FileProvider>
-      <App />
-    </FileProvider>
-  );
+  return <App />;
 }
 
 export default Layout;

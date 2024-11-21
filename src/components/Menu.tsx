@@ -13,12 +13,11 @@ import { useLocalStorage } from "usehooks-ts";
 
 import useCurrentFile from "@/hooks/useCurrentFile";
 import EditMenu from "./Menu/Edit";
-import DebugMenu from "./Menu/Debug";
 export default function Menu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [panguEnabled, setPanguEnabled] = useLocalStorage(
     "pangu-enabled",
-    true
+    true,
   );
   const { file, setFile, loadFile } = useCurrentFile();
 
@@ -114,7 +113,6 @@ export default function Menu() {
               <MenubarSeparator /> */}
             </MenubarContent>
           </MenubarMenu>
-          <DebugMenu />
         </Menubar>
       </nav>
       <input
