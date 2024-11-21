@@ -17,7 +17,8 @@ import {
   MenubarShortcut,
 } from "@/components/ui/menubar";
 import { useState, useEffect } from "react";
-import useCurrentFile from "@/hooks/useCurrentFile";
+import { useFileContent } from "@/hooks/useFileContent";
+
 export default function EditMenu() {
   const [replaceDialog, setReplaceDialog] = useState(false);
 
@@ -59,21 +60,26 @@ function ReplaceDialog({
 }) {
   const [replaceText, setReplaceText] = useState("");
   const [replaceWith, setReplaceWith] = useState("");
-  const { file, setFile } = useCurrentFile();
+  const { content, setContent } = useFileContent();
+
   function onReplaceText() {
     if (replaceText === "") return;
-    const currentContent = structuredClone(file!.content)!;
-    currentContent.forEach((x) => {
-      x.text = x.text!.replaceAll(replaceText, replaceWith);
+    const newContent = structuredClone(content)!;
+    newContent.forEach((x) => {
+      if (x.text) {
+        x.text = x.text.replaceAll(replaceText, replaceWith);
+      }
     });
-    setFile({ ...file, content: currentContent });
+    setContent(newContent);
     setReplaceText("");
     setReplaceWith("");
     closeDialog();
   }
+
   function closeDialog() {
     setOpen(false);
   }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
