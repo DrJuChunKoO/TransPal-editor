@@ -3,18 +3,18 @@ import { pangu } from "pangu-ts";
 import { create } from "zustand";
 
 interface FileInfoStore {
-  info: TranspalFile['info'];
-  setInfo: (info: TranspalFile['info']) => void;
+  info: TranspalFile["info"];
+  setInfo: (info: TranspalFile["info"]) => void;
 }
 
 interface FileContentStore {
-  content: TranspalFile['content'];
-  setContent: (content: TranspalFile['content']) => void;
+  content: TranspalFile["content"];
+  setContent: (content: TranspalFile["content"]) => void;
 }
 
 interface FileRawStore {
-  raw: TranspalFile['raw'];
-  setRaw: (raw: TranspalFile['raw']) => void;
+  raw: TranspalFile["raw"];
+  setRaw: (raw: TranspalFile["raw"]) => void;
 }
 
 export const useFileInfoStore = create<FileInfoStore>((set) => ({
@@ -86,7 +86,7 @@ export default function useCurrentFile() {
             transcript: null,
             srt: content,
           };
-          let parsedContent = [] as any[];
+          const parsedContent = [] as any[];
           let lastEnd = 0;
 
           // 00:00:00,000
