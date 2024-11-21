@@ -15,7 +15,7 @@
     "@radix-ui/react-menubar": "^1.0.4",
     "@radix-ui/react-slot": "^1.0.2",
     "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.0",
+    "clsx": "^2.1.1",
     "lucide-react": "^0.460.0",
     "motion": "^11.11.17",
     "pangu-ts": "^0.0.6",
