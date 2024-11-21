@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { CheckSquare2, Square, Combine, Speech, X } from "lucide-react";
 import { twMerge } from "tailwind-merge";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import Markdown from "react-markdown";
 import MoreButton from "./MoreButton";
 import useCurrentFile from "@/hooks/useCurrentFile";
@@ -63,7 +63,7 @@ function MarkdownContextBlock({
             "px-2 py-1 rounded text-sm",
             mode === "markdown"
               ? "bg-slate-100 text-slate-800"
-              : "hover:bg-slate-100 hover:text-slate-800"
+              : "hover:bg-slate-100 hover:text-slate-800",
           )}
           onClick={() => setMode("markdown")}
         >
@@ -74,7 +74,7 @@ function MarkdownContextBlock({
             "px-2 py-1 rounded-md text-sm",
             mode === "preview"
               ? "bg-slate-100 text-slate-800"
-              : "hover:bg-slate-100 hover:text-slate-800"
+              : "hover:bg-slate-100 hover:text-slate-800",
           )}
           onClick={() => setMode("preview")}
         >
@@ -141,7 +141,7 @@ export default function Editor() {
     ...new Set(
       file
         .content!.filter((x: any) => x.type == "speech")
-        .map((x: any) => x.speaker as string)
+        .map((x: any) => x.speaker as string),
     ),
   ] as string[];
   speakers.forEach((x, i) => {
@@ -170,11 +170,11 @@ export default function Editor() {
                       // merge selected items
                       let mergedText = "";
                       let startTime = newValues.find(
-                        (y) => y.id === selectedItem[0]
+                        (y) => y.id === selectedItem[0],
                       ).start;
                       let endTime = 0;
                       let speaker = newValues.find(
-                        (y) => y.id === selectedItem[0]
+                        (y) => y.id === selectedItem[0],
                       )?.speaker;
                       newValues.forEach((y) => {
                         if (selectedItem.includes(y.id)) {
@@ -185,7 +185,7 @@ export default function Editor() {
                         }
                       });
                       newValues = newValues.filter(
-                        (y) => !selectedItem.includes(y.id)
+                        (y) => !selectedItem.includes(y.id),
                       );
                       newValues.push({
                         id: selectedItem[0],
@@ -235,7 +235,7 @@ export default function Editor() {
                 <span
                   className={twMerge(
                     "font-bold mx-1 px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700",
-                    isShiftPressed && "text-blue-50 bg-blue-500"
+                    isShiftPressed && "text-blue-50 bg-blue-500",
                   )}
                 >
                   Shift
@@ -248,7 +248,7 @@ export default function Editor() {
         <div
           className={twMerge(
             "bg-slate-50 border border-slate-200 rounded-lg p-3 flex flex-col gap-4 transition-all",
-            batchChangeOpened && "opacity-25 blur-sm pointer-events-none"
+            batchChangeOpened && "opacity-25 blur-sm pointer-events-none",
           )}
         >
           <div className="font-bold text-slate-700">基本資訊</div>
@@ -319,7 +319,7 @@ export default function Editor() {
         <div
           className={twMerge(
             "bg-slate-50 border border-slate-200 rounded-lg p-3 flex flex-col gap-4 transition-all",
-            batchChangeOpened && "opacity-25 blur-sm pointer-events-none"
+            batchChangeOpened && "opacity-25 blur-sm pointer-events-none",
           )}
         >
           <div className="font-bold text-slate-700">重命名發言者</div>
@@ -355,7 +355,7 @@ export default function Editor() {
                       "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
                       selectedItem.includes(x.id)
                         ? "bg-gray-100"
-                        : "hover:bg-gray-50"
+                        : "hover:bg-gray-50",
                     )}
                     key={x.id}
                   >
@@ -365,7 +365,7 @@ export default function Editor() {
                         let ids = [x.id];
                         if (isShiftPressed && selectedItem.length > 0) {
                           let start = file.content!.findIndex(
-                            (y: any) => y.id === selectedItem.at(-1)
+                            (y: any) => y.id === selectedItem.at(-1),
                           );
                           let end = index;
                           if (end < start) {
@@ -376,7 +376,7 @@ export default function Editor() {
 
                           ids = file
                             .content!.filter(
-                              (_: any, i: number) => i >= start && i <= end
+                              (_: any, i: number) => i >= start && i <= end,
                             )
                             .map((y: any) => y.id)
                             .filter((y: any) => y !== selectedItem.at(-1));
@@ -388,7 +388,7 @@ export default function Editor() {
                             newSelectedItem = [...newSelectedItem, y];
                           } else {
                             newSelectedItem = newSelectedItem.filter(
-                              (z: any) => z !== y
+                              (z: any) => z !== y,
                             );
                           }
                         });
@@ -404,7 +404,7 @@ export default function Editor() {
                     <div
                       className={twMerge(
                         "text-gray-500 w-[7em] relative font-bold p-1 rounded",
-                        nameColor[x.speaker]
+                        nameColor[x.speaker],
                       )}
                     >
                       <input
@@ -447,7 +447,7 @@ export default function Editor() {
                       "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
                       selectedItem.includes(x.id)
                         ? "bg-gray-100"
-                        : "hover:bg-gray-50"
+                        : "hover:bg-gray-50",
                     )}
                     key={x.id}
                   >
@@ -458,7 +458,7 @@ export default function Editor() {
                           setSelectedItem([...selectedItem, x.id]);
                         } else {
                           setSelectedItem(
-                            selectedItem.filter((y: any) => y !== x.id)
+                            selectedItem.filter((y: any) => y !== x.id),
                           );
                         }
                       }}
@@ -499,7 +499,7 @@ export default function Editor() {
                       "flex gap-4 my-1 has-[input:focus]:bg-gray-50 rounded items-center group",
                       selectedItem.includes(x.id)
                         ? "bg-gray-100"
-                        : "hover:bg-gray-50"
+                        : "hover:bg-gray-50",
                     )}
                     key={x.id}
                   >
@@ -510,7 +510,7 @@ export default function Editor() {
                           setSelectedItem([...selectedItem, x.id]);
                         } else {
                           setSelectedItem(
-                            selectedItem.filter((y: any) => y !== x.id)
+                            selectedItem.filter((y: any) => y !== x.id),
                           );
                         }
                       }}
