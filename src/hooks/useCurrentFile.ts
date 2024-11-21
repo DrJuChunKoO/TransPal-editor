@@ -18,7 +18,7 @@ interface FileRawStore {
 }
 
 export const useFileInfoStore = create<FileInfoStore>((set) => ({
-  info: null,
+  info: undefined,
   setInfo: (info) => set({ info }),
 }));
 
@@ -28,7 +28,7 @@ export const useFileContentStore = create<FileContentStore>((set) => ({
 }));
 
 export const useFileRawStore = create<FileRawStore>((set) => ({
-  raw: null,
+  raw: undefined,
   setRaw: (raw) => set({ raw }),
 }));
 
@@ -148,9 +148,9 @@ export default function useCurrentFile() {
 
   const setFile = (file: TranspalFile | null) => {
     if (file === null) {
-      setInfo(null);
+      setInfo(undefined);
       setContent([]);
-      setRaw(null);
+      setRaw(undefined);
       return;
     }
     setInfo(file.info);
