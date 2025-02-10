@@ -21,13 +21,12 @@ export default function Menu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [panguEnabled, setPanguEnabled] = useLocalStorage(
     "pangu-enabled",
-    true,
+    true
   );
   const { loadFile } = useCurrentFile();
   const { info, setInfo } = useFileInfo();
   const { content, setContent } = useFileContent();
   const { raw, setRaw } = useFileRaw();
-
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.metaKey) {
@@ -69,9 +68,12 @@ export default function Menu() {
     }
     const { date, slug } = info;
     const downloadElement = document.createElement("a");
-    const fileBolb = new Blob([JSON.stringify({ info, content, raw })], {
-      type: "application/json",
-    });
+    const fileBolb = new Blob(
+      [JSON.stringify({ info, content, raw }, null, 2)],
+      {
+        type: "application/json",
+      }
+    );
     downloadElement.href = URL.createObjectURL(fileBolb);
     downloadElement.download = `${date}-${slug}.json`;
     downloadElement.click();
