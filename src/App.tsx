@@ -12,22 +12,25 @@ function App() {
     // check query file=
     const file = new URLSearchParams(window.location.search).get("file");
     if (file) {
-      const loadingToast = toast.loading(`正在載入「${file}」`);
-      try {
-        loadOnlineFile(file);
-        toast.success(`已載入「${file}」`);
-      } catch (e) {
-        alert("載入檔案失敗");
-      }
-      toast.dismiss(loadingToast);
+      loadOnlineFile(file);
     }
     async function loadOnlineFile(file: string) {
-      const response = await fetch(
-        `https://transpal.juchunko.com/speeches/${encodeURIComponent(
-          file
-        )}.json`
-      ).then((x) => x.json());
-      loadJson(response);
+      const loadingToast = toast.loading(`正在載入檔案⋯`, {
+        duration: Infinity,
+      });
+      try {
+        const response = await fetch(
+          `https://transpal.juchunko.com/speeches/${encodeURIComponent(
+            file
+          )}.json`
+        ).then((x) => x.json());
+        loadJson(response);
+        toast.success(`${response.info.name} 載入完成`);
+      } catch (e) {
+        toast.error("載入檔案失敗");
+      } finally {
+        toast.dismiss(loadingToast);
+      }
     }
   }, []);
   return (
