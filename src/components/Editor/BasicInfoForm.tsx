@@ -17,24 +17,30 @@ const BasicInfoForm = memo(({ batchChangeOpened }: BasicInfoFormProps) => {
     <div
       className={twMerge(
         "bg-slate-50 border border-slate-200 rounded-lg p-3 flex flex-col gap-4 transition-all",
-        batchChangeOpened && "opacity-25 blur-sm pointer-events-none",
+        batchChangeOpened && "opacity-25 blur-sm pointer-events-none"
       )}
     >
       <div className="font-bold text-slate-700">基本資訊</div>
       <div className="grid w-full max-w-sm items-center gap-1.5">
-        <Label htmlFor="name">名稱</Label>
+        <Label htmlFor="name">
+          名稱
+          <span className="bg-red-50 text-red-500 text-xs px-1.5 py-0.5 rounded ml-1">
+            必填
+          </span>
+        </Label>
         <Input
           id="name"
           value={info.name || ""}
-          onChange={(e) =>
-            setInfo({ ...info, name: e.target.value })
-          }
+          onChange={(e) => setInfo({ ...info, name: e.target.value })}
         />
       </div>
       <div className="grid w-full max-w-sm items-center gap-1.5">
         <Label htmlFor="name">
           代稱
           <span className="text-xs text-gray-500 ml-1">slug</span>
+          <span className="bg-red-50 text-red-500 text-xs px-1.5 py-0.5 rounded ml-1">
+            必填
+          </span>
         </Label>
         <Input
           id="slug"
@@ -54,14 +60,28 @@ const BasicInfoForm = memo(({ batchChangeOpened }: BasicInfoFormProps) => {
         </div>
       </div>
       <div className="grid w-full max-w-sm items-center gap-1.5">
-        <Label htmlFor="date">日期</Label>
+        <Label htmlFor="date">
+          日期
+          <span className="bg-red-50 text-red-500 text-xs px-1.5 py-0.5 rounded ml-1">
+            必填
+          </span>
+        </Label>
         <Input
           id="date"
           value={info.date || ""}
           type="date"
-          onChange={(e) =>
-            setInfo({ ...info, date: e.target.value })
-          }
+          onChange={(e) => setInfo({ ...info, date: e.target.value })}
+        />
+      </div>
+      <div className="grid w-full max-w-sm items-center gap-1.5">
+        <Label htmlFor="date">時間</Label>
+        <Input
+          id="time"
+          value={info.time || ""}
+          type="time"
+          min="00:00"
+          max="23:59"
+          onChange={(e) => setInfo({ ...info, time: e.target.value })}
         />
       </div>
       <div className="grid w-full max-w-sm items-center gap-1.5">
