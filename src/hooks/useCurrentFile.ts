@@ -68,7 +68,13 @@ export default function useCurrentFile() {
   const setContent = useFileContentStore((state) => state.setContent);
   const raw = useFileRawStore((state) => state.raw);
   const setRaw = useFileRawStore((state) => state.setRaw);
+  function loadJson(json: TranspalFile) {
+    const { info, raw, content } = json;
 
+    setInfo(info);
+    setRaw(raw);
+    setContent(content);
+  }
   function loadFile(file: File) {
     if (file) {
       const reader = new FileReader();
@@ -166,5 +172,6 @@ export default function useCurrentFile() {
     },
     setFile,
     loadFile,
+    loadJson,
   };
 }
