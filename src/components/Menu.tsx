@@ -16,7 +16,7 @@ import { useFileInfo } from "@/hooks/useFileInfo";
 import { useFileContent } from "@/hooks/useFileContent";
 import { useFileRaw } from "@/hooks/useFileRaw";
 import EditMenu from "./Menu/Edit";
-
+import { toast } from "sonner";
 export default function Menu() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [panguEnabled, setPanguEnabled] = useLocalStorage(
@@ -38,6 +38,9 @@ export default function Menu() {
           SaveFile();
           e.preventDefault();
         }
+        if (e.key === "j") {
+          CopyJson();
+        }
       }
     }
     window.addEventListener("keydown", handleKeyDown);
@@ -45,7 +48,6 @@ export default function Menu() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [info, content, raw]);
-
   function HandleLoadFile() {
     if (typeof window === "undefined") return;
     const fileInput = fileInputRef.current;
@@ -61,10 +63,10 @@ export default function Menu() {
   function SaveFile() {
     if (typeof window === "undefined") return;
     if (!info) {
-      return alert("目前沒有檔案可以儲存");
+      return toast.error("目前沒有檔案可以儲存");
     }
     if (!info?.name || !info?.date || !info?.slug) {
-      return alert("請輸入名稱、代稱和日期");
+      return toast.error("請輸入名稱、代稱和日期");
     }
     const { date, slug } = info;
     const downloadElement = document.createElement("a");
@@ -77,8 +79,15 @@ export default function Menu() {
     downloadElement.href = URL.createObjectURL(fileBolb);
     downloadElement.download = `${date}-${slug}.json`;
     downloadElement.click();
+    toast.success("已下載檔案");
   }
 
+  function CopyJson() {
+    const json = JSON.stringify({ info, content, raw }, null, 2);
+    navigator.clipboard.writeText(json).then(() => {
+      toast.success("已複製到剪貼簿");
+    });
+  }
   function CloseFile() {
     if (content && confirm("關閉檔案後將遺失目前所有的更改")) {
       setInfo(undefined);
@@ -111,6 +120,9 @@ export default function Menu() {
               </MenubarItem>
               <MenubarItem onClick={() => SaveFile()}>
                 儲存 <MenubarShortcut> ⌘S</MenubarShortcut>
+              </MenubarItem>
+              <MenubarItem onClick={() => CopyJson()}>
+                複製 JSON <MenubarShortcut> ⌘J</MenubarShortcut>
               </MenubarItem>
               <MenubarSeparator />
               <MenubarItem onClick={() => CloseFile()}>關閉檔案</MenubarItem>
