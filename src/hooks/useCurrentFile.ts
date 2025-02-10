@@ -40,6 +40,7 @@ interface TranspalFile {
     date?: string;
     slug?: string;
     description?: string;
+    time?: string;
   };
   content?: {
     start?: number;
