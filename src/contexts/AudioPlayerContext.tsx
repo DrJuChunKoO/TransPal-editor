@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useRef, ReactNode } from "react";
 import { useFileContentStore } from "@/hooks/useCurrentFile";
 import { create } from "zustand";
 
