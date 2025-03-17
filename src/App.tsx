@@ -5,6 +5,8 @@ import NoFile from "./components/NoFile";
 import { useFileContent } from "@/hooks/useFileContent";
 import useCurrentFile from "@/hooks/useCurrentFile";
 import { Toaster, toast } from "sonner";
+import { AudioPlayerProvider } from "@/contexts/AudioPlayerContext";
+
 function App() {
   const { content } = useFileContent();
   const { loadJson } = useCurrentFile();
@@ -43,7 +45,11 @@ function App() {
 }
 
 function Layout() {
-  return <App />;
+  return (
+    <AudioPlayerProvider>
+      <App />
+    </AudioPlayerProvider>
+  );
 }
 
 export default Layout;
