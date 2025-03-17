@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { AnimatePresence } from "motion/react";
 import { useFileContent } from "@/hooks/useFileContent";
+import useAudioPlayer from "../../hooks/useAudioPlayer";
 import BasicInfoForm from "./BasicInfoForm";
 import SpeakerRenameSection from "./SpeakerRenameSection";
 import BatchChangePanel from "./BatchChangePanel";
@@ -11,6 +12,24 @@ const Editor = () => {
   const { content, setContent } = useFileContent();
   const [selectedItem, setSelectedItem] = useState<string[]>([]);
   const [isShiftPressed, setIsShiftPressed] = useState(false);
+
+  // 從 useAudioPlayer 中獲取我們需要的方法和狀態
+  const { showAudioInEditor, restoreAudioToGlobal } = useAudioPlayer();
+
+  const audioContainerRef = useRef<HTMLDivElement>(null);
+
+  // 處理音訊元素
+  useEffect(() => {
+    console.log("Editor 組件已載入，準備設置音訊顯示");
+
+    // 將全局音訊元素移到編輯器容器中
+    showAudioInEditor(audioContainerRef.current);
+
+    // 組件卸載時，將音訊元素恢復到全局位置
+    return () => {
+      restoreAudioToGlobal();
+    };
+  }, []); // 空依賴數組，只在掛載和卸載時執行
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -37,7 +56,7 @@ const Editor = () => {
     if (!content) return [];
     return [
       ...new Set(
-        content.filter((x) => x.type === "speech").map((x) => x.speaker),
+        content.filter((x) => x.type === "speech").map((x) => x.speaker)
       ),
     ] as string[];
   }, [content]);
@@ -91,8 +110,12 @@ const Editor = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col  p-4 lg:grid lg:grid-cols-4 gap-4 h-full overflow-hidden ">
-      <div className="lg:col-span-1 flex flex-col gap-4  relative  h-full overflow-auto">
+    <div className="flex-1 flex flex-col p-4 lg:grid lg:grid-cols-4 gap-4 h-full overflow-hidden">
+      <div className="lg:col-span-1 flex flex-col gap-4 relative h-full overflow-auto">
+        <div
+          ref={audioContainerRef}
+          className="w-full audio-container hidden"
+        ></div>
         <AnimatePresence>
           {batchChangeOpened && (
             <BatchChangePanel

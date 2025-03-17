@@ -33,7 +33,11 @@ export const useFileRawStore = create<FileRawStore>((set) => ({
 }));
 
 interface TranspalFile {
-  raw?: any;
+  raw?: {
+    diarization?: unknown;
+    transcript?: unknown;
+    srt?: string;
+  };
   info?: {
     filename?: string;
     name?: string;
@@ -93,7 +97,7 @@ export default function useCurrentFile() {
             transcript: null,
             srt: content,
           };
-          const parsedContent = [] as any[];
+          const parsedContent: TranspalFile["content"] = [];
           let lastEnd = 0;
 
           // 00:00:00,000
@@ -138,10 +142,12 @@ export default function useCurrentFile() {
         } else if (typeof content === "string" && fileExtension === "json") {
           const res = JSON.parse(content);
           if (panguEnabled) {
-            res.content = res.content.map((x: any) => {
-              x.text = pangu.spacing(x.text.trim());
-              return x;
-            });
+            res.content = res.content.map(
+              (x: { text: string; [key: string]: unknown }) => {
+                x.text = pangu.spacing(x.text.trim());
+                return x;
+              }
+            );
           }
 
           setInfo(res.info);
